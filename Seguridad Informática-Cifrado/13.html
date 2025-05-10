@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conclusiones y Resumen</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Added Tailwind CSS link as it was present in 12.html example -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        /* Added box-sizing based on 12.html example */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(120deg, #1a2a6c, #2a4365);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+        .slide-container {
+            width: 100%; /* Use 100% for responsiveness */
+            max-width: 1280px; /* Max width */
+            min-height: auto; /* Height adapts to content */
+            position: relative;
+            /* Removed overflow: hidden; as it can hide content */
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            margin: 0 auto; /* Center container */
+            padding: 1rem; /* Responsive padding */
+        }
+
+        /* Responsive padding for larger screens */
+        @media (min-width: 768px) {
+            .slide-container {
+                padding: 2rem;
+            }
+        }
+
+        .title-accent {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        /* Moved subtitle styles from inline */
+        .subtitle {
+            color: #93c5fd; /* text-blue-300 equivalent */
+            margin-top: 0.6rem; /* Responsive margin */
+            font-size: 1rem; /* Responsive font size */
+        }
+
+        /* Responsive font size for larger screens */
+        @media (min-width: 768px) {
+            .subtitle {
+                font-size: 1.25rem; /* ~20px */
+            }
+        }
+
+        .conclusion-grid {
+            display: grid;
+            /* Start with 1 column on small screens */
+            grid-template-columns: 1fr;
+            gap: 1.5rem; /* Responsive gap */
+            margin-top: 1.5rem; /* Responsive margin */
+        }
+
+        /* Change to 2 columns on larger screens */
+        @media (min-width: 768px) {
+            .conclusion-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px; /* Original gap */
+                 /* Added align-items start from 12.html example */
+                align-items: start;
+            }
+        }
+
+        .conclusion-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 1.2rem; /* Responsive padding */
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border-left: 4px solid #4facfe;
+            transition: transform 0.3s ease;
+            height: 100%; /* Keep height 100% for grid alignment */
+            position: relative;
+            overflow: hidden; /* Keep overflow hidden for icon */
+            display: flex; /* Added flex for internal layout */
+            flex-direction: column; /* Added flex for internal layout */
+        }
+         /* Adjusted padding for larger screens */
+         @media (min-width: 768px) {
+            .conclusion-card {
+                padding: 20px; /* Original padding */
+            }
+         }
+
+
+        .card-icon {
+            position: absolute;
+            top: 50%;
+            right: -20px;
+            transform: translateY(-50%);
+            font-size: 120px; /* Original size */
+            opacity: 0.05;
+            color: #4facfe;
+            z-index: 0;
+            /* Responsive adjustments */
+            pointer-events: none; /* Ensure icon doesn't interfere with clicks */
+        }
+        /* Make icon smaller on medium screens */
+         @media (max-width: 1024px) {
+             .card-icon {
+                 font-size: 80px;
+                 right: -10px;
+             }
+         }
+         /* Hide icon on small screens */
+         @media (max-width: 600px) {
+             .card-icon {
+                 display: none;
+             }
+         }
+
+
+        .card-title {
+            font-size: 1.2rem; /* Responsive font size */
+            font-weight: 700;
+            margin-bottom: 0.8rem; /* Responsive margin */
+            color: #4facfe;
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+        }
+         /* Adjust font size for larger screens */
+         @media (min-width: 768px) {
+            .card-title {
+                font-size: 22px; /* Original size */
+                margin-bottom: 15px; /* Original margin */
+            }
+         }
+
+        .card-content {
+            position: relative;
+            z-index: 1;
+            /* Allow content to take up remaining space */
+            flex-grow: 1;
+        }
+
+        .bullet-list {
+            list-style-type: none;
+            padding-left: 0;
+            margin: 0;
+        }
+        .bullet-list li {
+            padding-left: 1.8rem; /* Responsive padding */
+            margin-bottom: 0.8rem; /* Responsive margin */
+            position: relative;
+            line-height: 1.4;
+            font-size: 0.9rem; /* Responsive font size */
+        }
+         /* Adjust padding, margin, font size for larger screens */
+         @media (min-width: 768px) {
+            .bullet-list li {
+                padding-left: 28px; /* Original padding */
+                margin-bottom: 12px; /* Original margin */
+                font-size: inherit; /* Inherit from card-content p or default */
+             }
+         }
+
+        .bullet-list li:before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 5px;
+            width: 16px; /* Original size */
+            height: 16px; /* Original size */
+            background: #4facfe;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .bullet-list li:after {
+            content: "→";
+            position: absolute;
+            left: 3px;
+            top: 2px;
+            color: white;
+            font-size: 12px; /* Original size */
+            font-weight: bold;
+        }
+
+        .highlight {
+            color: #4facfe;
+            font-weight: 600;
+        }
+        .resource-grid {
+            display: grid;
+             /* Start with 1 column on small screens */
+             grid-template-columns: 1fr;
+            gap: 0.8rem; /* Responsive gap */
+            margin-top: 1rem; /* Responsive margin */
+        }
+         /* Change to 2 columns on larger screens */
+         @media (min-width: 500px) {
+             .resource-grid {
+                 grid-template-columns: repeat(2, 1fr);
+                 gap: 12px; /* Original gap */
+             }
+         }
+
+
+        .resource-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 0.8rem 1rem; /* Responsive padding */
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.2s ease;
+        }
+         /* Adjusted padding for larger screens */
+         @media (min-width: 768px) {
+             .resource-item {
+                 padding: 10px 15px; /* Original padding */
+             }
+         }
+
+        .resource-item:hover {
+            background: rgba(79, 172, 254, 0.1);
+            border-color: rgba(79, 172, 254, 0.5);
+        }
+        .resource-item h4 {
+            margin: 0 0 0.3rem 0; /* Responsive margin */
+            font-size: 1rem; /* Responsive font size */
+            color: #4facfe;
+        }
+         /* Adjusted font size for larger screens */
+         @media (min-width: 768px) {
+             .resource-item h4 {
+                 font-size: 16px; /* Original size */
+                 margin-bottom: 5px; /* Original margin */
+             }
+         }
+
+        .resource-item p {
+            margin: 0;
+            font-size: 0.8rem; /* Responsive font size */
+            opacity: 0.8;
+        }
+         /* Adjusted font size for larger screens */
+         @media (min-width: 768px) {
+            .resource-item p {
+                font-size: 13px; /* Original size */
+            }
+         }
+
+        .thank-you-section {
+            text-align: center;
+            margin-top: 2rem; /* Responsive margin */
+            padding: 1.2rem; /* Responsive padding */
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
+        }
+         /* Adjusted margin and padding for larger screens */
+         @media (min-width: 768px) {
+            .thank-you-section {
+                margin-top: 30px; /* Original margin */
+                padding: 20px; /* Original padding */
+            }
+         }
+
+        .team-members {
+            display: flex;
+            justify-content: center;
+            margin-top: 1rem; /* Responsive margin */
+            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 0.8rem; /* Add gap between members */
+        }
+         /* Adjusted margin for larger screens */
+         @media (min-width: 768px) {
+            .team-members {
+                margin-top: 15px; /* Original margin */
+                 gap: 0; /* Remove gap if original had none or use original spacing */
+            }
+         }
+
+
+        .team-member {
+            /* Adjusted margin for spacing when wrapped */
+            margin: 0.3rem 0.5rem;
+            padding: 0.5rem 0.8rem; /* Responsive padding */
+            background: rgba(79, 172, 254, 0.1);
+            border-radius: 30px;
+            border: 1px solid rgba(79, 172, 254, 0.3);
+             font-size: 0.9rem; /* Responsive font size */
+        }
+         /* Adjusted margin and padding for larger screens */
+         @media (min-width: 768px) {
+             .team-member {
+                 margin: 0 15px; /* Original margin */
+                 padding: 8px 16px; /* Original padding */
+                 font-size: inherit; /* Inherit from body or default */
+             }
+         }
+
+
+        .icon { /* Inline icons in card titles */
+            display: inline-block;
+            width: 1.2rem; /* Responsive size */
+            height: 1.2rem; /* Responsive size */
+            margin-right: 0.5rem; /* Responsive margin */
+            position: relative;
+            top: 0.2rem; /* Adjust alignment */
+        }
+        /* Adjust size for larger screens */
+         @media (min-width: 768px) {
+             .icon {
+                 width: 24px; /* Original size */
+                 height: 24px; /* Original size */
+                 margin-right: 10px; /* Original margin */
+                 top: 6px; /* Original alignment */
+             }
+         }
+
+        .icon-key {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%234facfe' d='M336 352c97.2 0 176-78.8 176-176S433.2 0 336 0S160 78.8 160 176c0 18.7 2.9 36.8 8.3 53.7L7 391c-4.5 4.5-7 10.6-7 17v80c0 13.3 10.7 24 24 24h80c13.3 0 24-10.7 24-24v-40h40c13.3 0 24-10.7 24-24v-40h40c6.4 0 12.5-2.5 17-7l33.3-33.3c16.9 5.4 35 8.3 53.7 8.3zM376 96a40 40 0 1 1 0 80 40 40 0 1 1 0-80z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .icon-chart {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%234facfe' d='M64 64c0-17.7-14.3-32-32-32S0 46.3 0 64V400c0 44.2 35.8 80 80 80H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H80c-8.8 0-16-7.2-16-16V64zm406.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L320 210.7l-57.4-57.4c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L240 221.3l57.4 57.4c12.5 12.5 32.8 12.5 45.3 0l128-128z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .icon-shield {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%234facfe' d='M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.7 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .icon-book {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='%234facfe' d='M96 0C43 0 0 43 0 96V416c0 53 43 96 96 96H384h32c17.7 0 32-14.3 32-32s-14.3-32-32-32V384c17.7 0 32-14.3 32-32V32c0-17.7-14.3-32-32-32H384 96zm0 384H352v64H96c-17.7 0-32-14.3-32-32s14.3-32 32-32zm32-240c0-8.8 7.2-16 16-16H336c8.8 0 16 7.2 16 16s-7.2 16-16 16H144c-8.8 0-16-7.2-16-16zm16 48H336c8.8 0 16 7.2 16 16s-7.2 16-16 16H144c-8.8 0-16-7.2-16-16s7.2-16 16-16z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+
+         /* Specific adjustments for title font size based on the original */
+        .text-5xl { font-size: 2.5rem; } /* Base size */
+        @media (min-width: 768px) {
+            .text-5xl { font-size: 3rem; } /* Example size for larger screens */
+        }
+
+
+    </style>
+</head>
+<body>
+    <div class="slide-container relative">
+        <!-- Removed section number as it wasn't in the user's example code for structure -->
+        <!-- <div class="section-number">4</div> -->
+
+        <!-- Title -->
+        <div class="text-center mb-4">
+            <h1 class="text-5xl font-bold">
+                <span class="title-accent">Conclusiones</span>
+            </h1>
+            <!-- Used subtitle class -->
+            <p class="subtitle">Puntos clave sobre Curvas Elípticas aplicadas al Cifrado de Bloque</p>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="conclusion-grid">
+            <!-- Key Points -->
+            <div class="conclusion-card">
+                <div class="card-icon">★</div>
+                <h2 class="card-title">
+                    <span class="icon icon-key"></span>Importancia de ECC
+                </h2>
+                <div class="card-content">
+                    <ul class="bullet-list">
+                        <li>Seguridad de nivel superior con <span class="highlight">claves más pequeñas</span> (256 bits ECC ≈ 3072 bits RSA)</li>
+                        <li><span class="highlight">Menor consumo de recursos</span> computacionales y de ancho de banda</li>
+                        <li>Ideal para entornos con <span class="highlight">restricciones de hardware</span> (IoT, móviles, tarjetas inteligentes)</li>
+                        <li>Adopción creciente en <span class="highlight">protocolos estándar</span> (TLS, SSH, PGP)</li>
+                        <li>Base matemática <span class="highlight">sólida y probada</span> desde hace décadas</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Hybrid Systems -->
+            <div class="conclusion-card">
+                <div class="card-icon">⚙️</div>
+                <h2 class="card-title">
+                    <span class="icon icon-chart"></span>Ventajas de Sistemas Híbridos
+                </h2>
+                <div class="card-content">
+                    <ul class="bullet-list">
+                        <li>Combinan la <span class="highlight">velocidad de cifrado simétrico</span> (AES) con <span class="highlight">seguridad asimétrica</span> (ECC)</li>
+                        <li><span class="highlight">Confidencialidad adelantada</span>: nuevas claves para cada sesión</li>
+                        <li>Solución <span class="highlight">escalable</span> adaptable a distintos niveles de seguridad</li>
+                        <li>Cifrado <span class="highlight">más eficiente</span> que sistemas puramente asimétricos</li>
+                        <li>Permiten <span class="highlight">implementaciones modulares</span> y migración progresiva</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Implementation Recommendations -->
+            <div class="conclusion-card">
+                <div class="card-icon">🛡️</div>
+                <h2 class="card-title">
+                    <span class="icon icon-shield"></span>Recomendaciones de Implementación
+                </h2>
+                <div class="card-content">
+                    <ul class="bullet-list">
+                        <li>Utilizar <span class="highlight">bibliotecas criptográficas probadas</span> (libsodium, OpenSSL)</li>
+                        <li>Implementar <span class="highlight">validación de claves públicas</span> para prevenir ataques</li>
+                        <li>Generar <span class="highlight">nonces/IVs aleatorios</span> para cada mensaje cifrado</li>
+                        <li>Incluir <span class="highlight">autenticación</span> (AEAD, GCM) junto con el cifrado</li>
+                        <li>Prepararse para la <span class="highlight">transición post-cuántica</span> con sistemas híbridos</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Resources -->
+            <div class="conclusion-card">
+                <div class="card-icon">📚</div>
+                <h2 class="card-title">
+                    <span class="icon icon-book"></span>Recursos para Profundizar
+                </h2>
+                <div class="card-content">
+                    <div class="resource-grid">
+                        <div class="resource-item">
+                            <h4>Handbook of Applied Cryptography</h4>
+                            <p>Alfred J. Menezes, Paul C. van Oorschot, Scott A. Vanstone</p>
+                        </div>
+
+                        <div class="resource-item">
+                            <h4>SafeCurves</h4>
+                            <p>safecurves.cr.yp.to - Criterios para curvas seguras</p>
+                        </div>
+
+                        <div class="resource-item">
+                            <h4>Cryptography Engineering</h4>
+                            <p>Ferguson, Schneier, Kohno - Fundamentos prácticos</p>
+                        </div>
+
+                        <div class="resource-item">
+                            <h4>NIST SP 800-56A</h4>
+                            <p>Recommendation for Pair-Wise Key Establishment</p>
+                        </div>
+                    </div>
+
+                    <p class="mt-3 text-sm">Repositorios y documentación de bibliotecas como <span class="highlight">libsodium</span>, <span class="highlight">OpenSSL</span>, <span class="highlight">Bouncy Castle</span> y <span class="highlight">Tink</span> ofrecen información detallada y ejemplos prácticos.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Thank you section -->
+        <div class="thank-you-section">
+            <h2 class="text-3xl font-bold">
+                <span class="title-accent">¡Gracias por su atención!</span>
+            </h2>
+
+            <div class="team-members">
+                <div class="team-member">Robert Dueñas</div>
+                <div class="team-member">Raúl Esquivel</div>
+                <div class="team-member">Alexis Lihuisi</div>
+                <div class="team-member">Luiz Huayta</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

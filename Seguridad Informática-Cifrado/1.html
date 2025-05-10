@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Curvas Elípticas aplicadas al Cifrado de Bloque</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(120deg, #1a2a6c, #2a4365);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Para evitar el scroll horizontal innecesario */
+        }
+        .slide-container {
+            width: 90%; /* Ajustamos el ancho al 90% del contenedor padre */
+            max-width: 1280px; /* Mantenemos un ancho máximo */
+            min-height: 720px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            margin: 20px auto; /* Centramos el contenedor en pantallas grandes */
+            padding: 2rem; /* Aumentamos el padding para mejor espaciado en diferentes tamaños */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .encryption-icon {
+            opacity: 0.1;
+            position: absolute;
+            right: 20px; /* Reducimos la distancia desde la derecha */
+            bottom: 20px; /* Reducimos la distancia desde abajo */
+            width: 30%; /* El icono se adapta al ancho del contenedor */
+            max-width: 200px; /* Establecemos un ancho máximo para pantallas grandes */
+            height: auto; /* Mantenemos la proporción del icono */
+            z-index: 0;
+        }
+        .curve {
+            position: absolute;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50% 50% 0 0;
+            transform: rotate(45deg);
+            z-index: 0;
+        }
+        .curve:nth-child(2) {
+            width: 40%; /* Se adapta al ancho */
+            max-width: 300px;
+            height: auto; /* Mantiene la proporción */
+            bottom: -10%;
+            right: -10%;
+        }
+        .curve:nth-child(3) {
+            width: 30%; /* Se adapta al ancho */
+            max-width: 200px;
+            height: auto; /* Mantiene la proporción */
+            bottom: -20%;
+            right: 10%;
+            transform: rotate(25deg);
+        }
+        .curve:nth-child(4) {
+            width: 20%; /* Se adapta al ancho */
+            max-width: 150px;
+            height: auto; /* Mantiene la proporción */
+            top: 10%;
+            left: -20%;
+            transform: rotate(195deg);
+        }
+        .presenter {
+            display: flex;
+            align-items: center;
+            margin: 0.5rem 0; /* Usamos unidades relativas */
+            position: relative;
+            z-index: 10;
+            background-color: rgba(26, 42, 108, 0.7);
+            padding: 0.5rem 1rem; /* Usamos unidades relativas */
+            border-radius: 25px;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, background-color 0.3s ease;
+            width: fit-content; /* Se ajusta al contenido */
+        }
+        .presenter:hover {
+            transform: translateX(5px);
+            background-color: rgba(42, 67, 101, 0.9);
+        }
+        .title-accent {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        h1 {
+            font-size: 3rem; /* Reducimos el tamaño de la fuente para pantallas más pequeñas */
+            font-weight: bold;
+            margin-bottom: 1rem;
+            z-index: 10;
+            line-height: 1.1;
+        }
+        .text-xl {
+            font-size: 1.2rem; /* Ajustamos el tamaño de la fuente */
+            font-weight: 300;
+            letter-spacing: 0.05em;
+        }
+        .mt-10 {
+            margin-top: 2rem; /* Usamos unidades relativas */
+        }
+        .mb-8 {
+            margin-bottom: 1.5rem; /* Usamos unidades relativas */
+        }
+        .mr-3 {
+            margin-right: 0.75rem; /* Usamos unidades relativas */
+        }
+        .text-lg {
+            font-size: 1rem; /* Ajustamos el tamaño de la fuente */
+        }
+        .absolute-bottom-right {
+            position: absolute;
+            bottom: 1rem; /* Usamos unidades relativas */
+            right: 1rem; /* Usamos unidades relativas */
+            z-index: 10;
+            font-size: 0.8rem; /* Ajustamos el tamaño de la fuente */
+            font-weight: 300;
+            color: rgba(173, 216, 230, 0.7); /* Un tono de azul más suave */
+        }
+
+        /* Media Queries para pantallas más pequeñas */
+        @media (max-width: 768px) {
+            .slide-container {
+                width: 95%;
+                min-height: auto; /* La altura se ajusta al contenido */
+                padding: 1.5rem;
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+            h1 {
+                font-size: 2.5rem;
+            }
+            .text-xl {
+                font-size: 1rem;
+            }
+            .encryption-icon {
+                width: 50%;
+                max-width: 150px;
+                right: 10px;
+                bottom: 10px;
+            }
+            .curve {
+                display: none; /* Ocultamos las curvas en pantallas pequeñas para simplificar */
+            }
+            .presenter {
+                font-size: 0.9rem;
+                padding: 0.4rem 0.8rem;
+                margin: 0.4rem 0;
+            }
+            .text-lg {
+                font-size: 0.9rem;
+            }
+            .absolute-bottom-right {
+                font-size: 0.7rem;
+                bottom: 0.5rem;
+                right: 0.5rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .text-xl {
+                font-size: 0.9rem;
+            }
+            .presenter span {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container flex flex-col justify-center items-start relative">
+        <div class="encryption-icon">
+            <i class="fas fa-lock text-white text-opacity-10" style="font-size: 400px;"></i>
+        </div>
+        <div class="curve"></div>
+        <div class="curve"></div>
+        <div class="curve"></div>
+        <div class="curve"></div>
+
+        <div class="z-10 mb-4">
+            <span class="text-xl font-light tracking-widest uppercase text-blue-200">Matemáticas aplicadas a la criptografía</span>
+        </div>
+
+        <h1 class="text-6xl font-bold mb-2 z-10">
+            <span class="title-accent">Curvas Elípticas</span><br>
+            aplicadas al Cifrado de Bloque
+        </h1>
+
+        <div class="mt-10 z-10">
+            <p class="text-xl font-light mb-8 text-blue-100">Seguridad Informática Avanzada | Mayo 2025</p>
+
+            <div class="flex flex-col">
+                <div class="presenter">
+                    <i class="fas fa-user-circle mr-3"></i>
+                    <span class="text-lg"><strong>Robert Dueñas</strong> | Introducción a las Curvas Elípticas</span>
+                </div>
+
+                <div class="presenter">
+                    <i class="fas fa-user-circle mr-3"></i>
+                    <span class="text-lg"><strong>Raúl Esquivel</strong> | Funcionamiento Básico del ECC</span>
+                </div>
+
+                <div class="presenter">
+                    <i class="fas fa-user-circle mr-3"></i>
+                    <span class="text-lg"><strong>Alexis Lihuisi</strong> | Relación con el Cifrado de Bloque</span>
+                </div>
+
+                <div class="presenter">
+                    <i class="fas fa-user-circle mr-3"></i>
+                    <span class="text-lg"><strong>Luiz Huayta</strong> | Aplicaciones actuales y perspectivas</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="absolute-bottom-right">
+            <p>Ingeniería de Sistemas - Universidad Católica de Santa María</p>
+        </div>
+    </div>
+</body>
+</html>

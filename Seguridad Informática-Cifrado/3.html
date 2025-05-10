@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Introducción a las Curvas Elípticas</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
+    <style>
+        /* Added box-sizing based on 12.html example */
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(120deg, #1a2a6c, #2a4365);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
+        .slide-container {
+            width: 100%; /* Use 100% for responsiveness */
+            max-width: 1280px; /* Max width */
+            min-height: auto; /* Height adapts to content */
+            position: relative;
+            /* Removed overflow: hidden; */
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            margin: 20px auto; /* Center container with vertical margin */
+            padding: 1rem; /* Responsive padding */
+        }
+
+        /* Responsive padding and margin for larger screens */
+        @media (min-width: 768px) {
+            .slide-container {
+                padding: 2rem;
+                 margin-top: 20px; /* Adjust top/bottom margin as needed */
+                 margin-bottom: 20px;
+            }
+        }
+
+        .title-accent {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        .formula {
+            font-size: 1.8rem; /* Responsive font size */
+            text-align: center;
+            margin: 0.8rem 0; /* Responsive margin */
+            font-family: "Times New Roman", Times, serif; /* Keep specific font */
+        }
+         /* Adjust font size and margin for larger screens */
+        @media (min-width: 768px) {
+            .formula {
+                font-size: 2.2rem; /* Original size */
+                margin: 15px 0; /* Original margin */
+            }
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 1rem; /* Responsive padding */
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            height: 100%; /* Keep height 100% for grid alignment */
+            border-left: 4px solid #4facfe;
+            transition: transform 0.3s ease;
+             display: flex; /* Added flex for internal layout */
+             flex-direction: column; /* Added flex for internal layout */
+        }
+         /* Adjusted padding for larger screens */
+         @media (min-width: 768px) {
+             .feature-card {
+                 padding: 12px; /* Original padding */
+             }
+         }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.9rem; /* Responsive font size */
+        }
+         /* Adjust font size for larger screens */
+        @media (min-width: 768px) {
+             .comparison-table {
+                 font-size: inherit; /* Inherit or set a base size */
+             }
+        }
+
+        .comparison-table th {
+            background-color: rgba(79, 172, 254, 0.2);
+            padding: 0.5rem; /* Responsive padding */
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid rgba(79, 172, 254, 0.5);
+        }
+         /* Adjust padding for larger screens */
+         @media (min-width: 768px) {
+             .comparison-table th {
+                 padding: 10px; /* Original padding */
+             }
+         }
+
+        .comparison-table td {
+            padding: 0.4rem 0.5rem; /* Responsive padding */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+         /* Adjust padding for larger screens */
+         @media (min-width: 768px) {
+             .comparison-table td {
+                 padding: 8px 10px; /* Original padding */
+             }
+         }
+
+        .comparison-table tr:last-child td {
+            border-bottom: none;
+        }
+        .comparison-table .better {
+            color: #4ade80;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 200px; /* Responsive height */
+            width: 100%; /* Ensure it takes full width of its container */
+            background: rgba(26, 32, 44, 0.4);
+            border-radius: 8px;
+            padding: 0.5rem; /* Responsive padding */
+             display: flex; /* Use flex to center chart canvas */
+             justify-content: center;
+             align-items: center;
+        }
+         /* Adjust height and padding for larger screens */
+        @media (min-width: 768px) {
+             .chart-container {
+                 height: 280px; /* Original height */
+                 padding: 8px; /* Original padding */
+             }
+        }
+
+        /* Ensure chart canvas scales within its container */
+        .chart-container canvas {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+
+        .presenter-badge {
+            position: relative; /* Start as relative */
+            bottom: auto;
+            right: auto;
+            background: rgba(79, 172, 254, 0.2);
+            padding: 0.6rem 1rem; /* Responsive padding */
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(79, 172, 254, 0.5);
+             width: fit-content; /* Shrink to fit content */
+             margin-top: 1.5rem; /* Add top margin when relative */
+             font-size: 0.9rem; /* Responsive font size */
+        }
+         /* Position absolute on larger screens */
+        @media (min-width: 768px) {
+            .presenter-badge {
+                position: absolute;
+                bottom: 0px; /* Original position */
+                right: 20px; /* Original position */
+                padding: 8px 16px; /* Original padding */
+                margin-top: 0; /* Remove margin when absolute */
+                 font-size: inherit; /* Inherit or set a base size */
+            }
+        }
+
+        .presenter-badge i { /* Icon inside badge */
+            margin-right: 0.5rem; /* Responsive margin */
+        }
+        @media (min-width: 768px) {
+            .presenter-badge i {
+                margin-right: 8px; /* Original margin */
+            }
+        }
+         .presenter-badge span { /* Text inside badge */
+             margin-left: 0; /* No left margin needed with flex gap */
+         }
+
+
+        .section-number {
+            position: absolute;
+            top: 1rem; /* Responsive top position */
+            left: 1rem; /* Responsive left position */
+            background: #4facfe;
+            width: 2rem; /* Responsive size */
+            height: 2rem; /* Responsive size */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem; /* Responsive font size */
+            box-shadow: 0 0 10px rgba(79, 172, 254, 0.6);
+        }
+         /* Adjust size and position for larger screens */
+        @media (min-width: 768px) {
+            .section-number {
+                top: 37px; /* Original position */
+                left: 80px; /* Original position */
+                width: 36px; /* Original size */
+                height: 36px; /* Original size */
+                font-size: 20px; /* Original size */
+            }
+        }
+
+        /* Responsive adjustments for other elements */
+        /* Title */
+        .text-4xl { font-size: 2rem; } /* Base size */
+        @media (min-width: 768px) {
+            .text-4xl { font-size: 2.5rem; } /* Adjust for larger screens if needed */
+        }
+
+        /* Subtitle */
+        .text-xl { font-size: 1rem; } /* Base size */
+        @media (min-width: 768px) {
+            .text-xl { font-size: 1.25rem; } /* Adjust for larger screens if needed */
+        }
+
+        /* Section Titles (h2) */
+         .text-2xl { font-size: 1.3rem; } /* Base size */
+        @media (min-width: 768px) {
+            .text-2xl { font-size: 1.5rem; } /* Adjust for larger screens if needed */
+        }
+
+        /* Card Titles (h3) */
+         .text-lg { font-size: 1rem; } /* Base size */
+         @media (min-width: 768px) {
+            .text-lg { font-size: 1.125rem; } /* Adjust for larger screens if needed */
+         }
+
+        /* General text (p, li) */
+         p, ul li { font-size: 0.9rem; }
+         @media (min-width: 768px) {
+             p, ul li { font-size: inherit; } /* Inherit from parent or base */
+         }
+
+        /* Small text (.text-sm) */
+         .text-sm { font-size: 0.8rem; }
+         @media (min-width: 768px) {
+             .text-sm { font-size: 0.875rem; } /* Original size */
+         }
+
+        /* Extra small text (.text-xs) */
+         .text-xs { font-size: 0.65rem; }
+         @media (min-width: 768px) {
+             .text-xs { font-size: 0.75rem; } /* Original size */
+         }
+
+        /* Margins */
+         .mb-8 { margin-bottom: 1.5rem; }
+         @media (min-width: 768px) { .mb-8 { margin-bottom: 2rem; } }
+
+         .mt-2 { margin-top: 0.5rem; }
+         @media (min-width: 768px) { .mt-2 { margin-top: 0.5rem; } }
+
+         .mb-6 { margin-bottom: 1rem; }
+         @media (min-width: 768px) { .mb-6 { margin-bottom: 1.5rem; } }
+
+         .mb-2 { margin-bottom: 0.5rem; }
+         @media (min-width: 768px) { .mb-2 { margin-bottom: 0.5rem; } }
+
+         .mt-1 { margin-top: 0.25rem; }
+         @media (min-width: 768px) { .mt-1 { margin-top: 0.25rem; } }
+
+        /* Tailwind Grid overrides for responsiveness */
+         .grid-cols-2 {
+             grid-template-columns: 1fr; /* Single column by default */
+             gap: 1rem; /* Responsive gap */
+         }
+         @media (min-width: 768px) {
+             .grid-cols-2 {
+                 grid-template-columns: repeat(2, 1fr); /* 2 columns on larger screens */
+                 gap: 1.5rem; /* Adjust gap for larger screens */
+             }
+         }
+
+         .gap-6 { gap: 1.5rem; } /* Override default Tailwind gap-6 for small screens */
+         @media (min-width: 768px) {
+             .gap-6 { gap: 1.5rem; } /* Maintain gap-6 on larger screens */
+         }
+
+         .gap-3 { gap: 0.8rem; } /* Override default Tailwind gap-3 */
+         @media (min-width: 768px) {
+             .gap-3 { gap: 0.75rem; } /* Maintain gap-3 on larger screens */
+         }
+
+        /* Font Awesome Icons */
+         .fa, .fas { /* Base icon size */
+             font-size: 1rem;
+         }
+         @media (min-width: 768px) {
+             .fa, .fas {
+                 font-size: inherit; /* Inherit size */
+             }
+         }
+         .mr-2 { margin-right: 0.5rem; }
+         @media (min-width: 768px) {
+             .mr-2 { margin-right: 0.5rem; } /* Keep original margin */
+         }
+
+         /* Inline KaTeX rendering */
+         .katex { font-size: inherit !important; } /* Allow KaTeX font size to be controlled by parent */
+
+    </style>
+</head>
+<body>
+    <div class="slide-container relative">
+        <div class="section-number">1</div>
+
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold">
+                <span class="title-accent">Introducción a las Curvas Elípticas</span>
+            </h1>
+            <p class="text-blue-200 mt-2 text-xl">Fundamentos matemáticos y aplicación criptográfica</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+            <div>
+                <div class="mb-6">
+                    <h2 class="text-2xl font-semibold mb-2 text-blue-300">
+                        <i class="fas fa-square-root-alt mr-2"></i>Definición Matemática
+                    </h2>
+                    <div class="feature-card">
+                        <p class="mb-2">Una curva elíptica es el conjunto de puntos que satisfacen la ecuación:</p>
+                        <div class="formula">y² = x³ + ax + b</div>
+                        <p class="text-sm text-blue-200">Donde 4a³ + 27b² ≠ 0 (para evitar singularidades)</p>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-semibold mb-2 text-blue-300">
+                        <i class="fas fa-shield-alt mr-2"></i>Utilidad en Criptografía
+                    </h2>
+                    <div class="grid grid-cols-1 gap-3">
+                        <div class="feature-card">
+                            <h3 class="text-lg font-medium text-blue-200">Problema del Logaritmo Discreto</h3>
+                             <p class="text-sm">Dificultad matemática de calcular k dado P y Q = k·P</p>
+                             <p class="text-xs mt-1 text-blue-300">Operación directa: sencilla | Operación inversa: computacionalmente compleja</p>
+                        </div>
+                        <div class="feature-card">
+                             <h3 class="text-lg font-medium text-blue-200">Aplicaciones</h3>
+                            <p class="text-sm">
+                                <span class="mr-2"><i class="fas fa-key text-xs"></i> Generación de claves</span>
+                                <span class="mr-2"><i class="fas fa-handshake text-xs"></i> Intercambio seguro</span>
+                                <span><i class="fas fa-signature text-xs"></i> Firmas digitales</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="mb-6">
+                    <h2 class="text-2xl font-semibold mb-2 text-blue-300">
+                        <i class="fas fa-chart-line mr-2"></i>Visualización
+                    </h2>
+                    <div class="chart-container">
+                        <canvas id="curveChart"></canvas>
+                    </div>
+                    <p class="text-xs text-center text-blue-300 mt-1">Ejemplo: y² = x³ - 3x + 3 con puntos P, Q y P+Q</p>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-semibold mb-2 text-blue-300">
+                        <i class="fas fa-balance-scale mr-2"></i>Comparativa con RSA
+                    </h2>
+                    <table class="comparison-table">
+                        <thead>
+                            <tr>
+                                <th>Característica</th>
+                                <th>ECC</th>
+                                <th>RSA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Tamaño de clave para seguridad equivalente</td>
+                                <td class="better">256 bits <i class="fas fa-check-circle text-xs"></i></td>
+                                <td>3072 bits</td>
+                            </tr>
+                            <tr>
+                                <td>Eficiencia computacional</td>
+                                <td class="better">Alta <i class="fas fa-check-circle text-xs"></i></td>
+                                <td>Media</td>
+                            </tr>
+                            <tr>
+                                <td>Resistencia a ataques cuánticos</td>
+                                <td>Vulnerable</td>
+                                <td>Vulnerable</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="presenter-badge">
+            <i class="fas fa-user-circle"></i> <span>Presentado por: <strong>Robert Dueñas</strong></span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Generate elliptic curve points
+            function generateEllipticCurvePoints() {
+                const a = -3;
+                const b = 3;
+
+                const points = [];
+                const xValues = [];
+                const yPosValues = [];
+                const yNegValues = [];
+
+                for (let x = -3; x <= 3; x += 0.05) {
+                    const ySquared = x*x*x + a*x + b;
+                    if (ySquared >= 0) {
+                        const y = Math.sqrt(ySquared);
+                        xValues.push(x);
+                        yPosValues.push(y);
+                        yNegValues.push(-y);
+                    }
+                }
+
+                points.push({
+                    label: 'Curva Elíptica',
+                    data: xValues.map((x, i) => ({ x, y: yPosValues[i] })),
+                    borderColor: '#4facfe',
+                    backgroundColor: 'transparent',
+                    pointRadius: 0,
+                    borderWidth: 2,
+                    showLine: true // Ensure line is shown for the curve
+                });
+
+                points.push({
+                    label: 'Curva Elíptica',
+                    data: xValues.map((x, i) => ({ x, y: yNegValues[i] })),
+                    borderColor: '#4facfe',
+                    backgroundColor: 'transparent',
+                    pointRadius: 0,
+                    borderWidth: 2,
+                    showLine: true // Ensure line is shown for the curve
+                });
+
+                // Add special points for demonstration
+                points.push({
+                    label: 'Punto P',
+                    data: [{ x: -1.5, y: -1.93 }],
+                    borderColor: '#ef4444',
+                    backgroundColor: '#ef4444',
+                    pointRadius: 5,
+                    showLine: false
+                });
+
+                points.push({
+                    label: 'Punto Q',
+                    data: [{ x: 0.5, y: 1.87 }],
+                    borderColor: '#22c55e',
+                    backgroundColor: '#22c55e',
+                    pointRadius: 5,
+                    showLine: false
+                });
+
+                points.push({
+                    label: 'Punto P+Q',
+                    data: [{ x: 1.2, y: -2.06 }],
+                    borderColor: '#f59e0b',
+                    backgroundColor: '#f59e0b',
+                    pointRadius: 5,
+                    showLine: false
+                });
+
+                return points;
+            }
+
+            // Create chart
+            const ctx = document.getElementById('curveChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: generateEllipticCurvePoints()
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Allow chart to fill container
+                    scales: {
+                        x: {
+                            type: 'linear', // Use linear scale for x-axis
+                            position: 'bottom',
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                display: false // Hide axis ticks
+                            },
+                             title: {
+                                display: true,
+                                text: 'x',
+                                color: 'rgba(255,255,255,0.7)',
+                                font: { size: 14 }
+                             }
+                        },
+                        y: {
+                             type: 'linear', // Use linear scale for y-axis
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)',
+                                display: false // Hide axis ticks
+                            },
+                             title: {
+                                display: true,
+                                text: 'y',
+                                color: 'rgba(255,255,255,0.7)',
+                                font: { size: 14 }
+                             }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label;
+                                    if (label === 'Curva Elíptica') {
+                                        return ''; // Hide tooltip for the curve data points
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    elements: {
+                         point: {
+                             radius: function(context) {
+                                 // Make points visible only for the named points, not the curve data
+                                 const label = context.dataset.label;
+                                 return (label === 'Punto P' || label === 'Punto Q' || label === 'Punto P+Q') ? 5 : 0;
+                             }
+                         },
+                         line: {
+                            tension: 0.4 // Add some tension to the curve lines for smoother look
+                         }
+                    }
+                }
+            });
+
+            // Render KaTeX formulas
+            // KaTeX rendering should be handled here if needed, but the example HTML
+            // doesn't contain elements with class 'katex'. Assuming it will be added later.
+            // Example:
+            // document.querySelectorAll('.render-katex').forEach(function(el) {
+            //     katex.render(el.textContent, el, { throwOnError: false });
+            // });
+        });
+    </script>
+
+</body>
+</html>

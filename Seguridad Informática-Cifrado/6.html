@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplicaciones de ECC en Protocolos de Seguridad</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(120deg, #1a2a6c, #2a4365);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Added to prevent horizontal scroll */
+        }
+        .slide-container {
+            width: 95%; /* Adjust width */
+            max-width: 1280px; /* Max width */
+            min-height: auto; /* Height adapts to content */
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            margin: 20px auto; /* Center container */
+            padding: 1rem; /* Adjust padding */
+        }
+        .title-accent {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 1rem; /* Adjust padding */
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            height: auto; /* Height adapts to content */
+            border-left: 4px solid #4facfe;
+            transition: transform 0.3s ease;
+            margin-bottom: 1rem; /* Adjust margin */
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .presenter-badge {
+            position: absolute;
+            bottom: 1.5rem; /* Adjust position */
+            right: 1.5rem; /* Adjust position */
+            background: rgba(79, 172, 254, 0.2);
+            padding: 0.6rem 1.2rem; /* Adjust padding */
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(79, 172, 254, 0.5);
+            font-size: 0.8rem; /* Adjust font size */
+            z-index: 20; /* Ensure it's on top */
+        }
+        .presenter-badge span { /* Adjust span inside badge */
+            margin-left: 0.3rem; /* Adjust margin */
+        }
+        .section-number {
+            position: absolute;
+            top: 1.5rem; /* Adjust position */
+            left: 1.5rem; /* Adjust position */
+            background: #4facfe;
+            width: 2.5rem; /* Adjust size */
+            height: 2.5rem; /* Adjust size */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem; /* Adjust font size */
+            box-shadow: 0 0 10px rgba(79, 172, 254, 0.6);
+        }
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
+            gap: 1.5rem; /* Adjust gap */
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 0.8rem; /* Adjust padding */
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem; /* Adjust font size */
+            color: #e2e8f0;
+            white-space: pre;
+            overflow-x: auto;
+            border: 1px solid rgba(79, 172, 254, 0.3);
+        }
+        .comment { color: #94a3b8; }
+        .keyword { color: #4facfe; font-weight: 500; }
+        .string { color: #4ade80; }
+        .function { color: #f59e0b; }
+        .variable { color: #f87171; }
+        .chart-container {
+            position: relative;
+            height: 220px; /* Initial height */
+            min-height: 180px; /* Minimum height */
+            margin-top: 0.8rem; /* Adjust margin */
+            background: rgba(26, 32, 44, 0.4);
+            border-radius: 8px;
+            padding: 0.6rem; /* Adjust padding */
+            margin-bottom: 1rem; /* Adjust margin */
+        }
+        .step-box {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 0.8rem; /* Adjust margin */
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding: 0.6rem 1rem; /* Adjust padding */
+            border-left: 3px solid rgba(79, 172, 254, 0.5);
+        }
+        .step-number {
+            background: #4facfe;
+            width: 1.5rem; /* Adjust size */
+            height: 1.5rem; /* Adjust size */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem; /* Adjust font size */
+            margin-right: 0.6rem; /* Adjust margin */
+            flex-shrink: 0;
+        }
+        .highlight {
+            color: #4facfe;
+            font-weight: 600;
+        }
+        .icon {
+            display: inline-block;
+            width: 1.2rem; /* Adjust size */
+            height: 1.2rem; /* Adjust size */
+            margin-right: 0.5rem; /* Adjust margin */
+            position: relative;
+            top: 0.2rem; /* Adjust alignment */
+        }
+        .icon-signature {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 512'%3E%3Cpath fill='%234facfe' d='M512 256c0 141.4-114.6 256-256 256S0 397.4 0 256 114.6 0 256 0s256 114.6 256 256zM400 240c17.7 0 32-14.3 32-32s-14.3-32-32-32h-160c-17.7 0-32 14.3-32 32v160c0 17.7 14.3 32 32 32s32-14.3 32-32v-64h96c17.7 0 32-14.3 32-32s-14.3-32-32-32h-96v-32h128z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .icon-lock {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='%234facfe' d='M144 144v48H304V144c0-44.2-35.8-80-80-80s-80 35.8-80 80zM80 192V144C80 64.5 144.5 0 224 0s144 64.5 144 144v48h16c35.3 0 64 28.7 64 64V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V256c0-35.3 28.7-64 64-64H80z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .icon-chart {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%234facfe' d='M64 64c0-17.7-14.3-32-32-32S0 46.3 0 64V400c0 44.2 35.8 80 80 80H480c17.7 0 32-14.3 32-32s-14.3-32-32-32H80c-8.8 0-16-7.2-16-16V64zm406.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L320 210.7l-57.4-57.4c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L240 221.3l57.4 57.4c12.5 12.5 32.8 12.5 45.3 0l128-128z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .icon-user {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='#fff' d='M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        /* Text Sizes and Margins */
+        h1 {
+            font-size: 2.5rem; /* Adjust title size */
+            font-weight: bold;
+            margin-bottom: 2rem; /* Adjust margin */
+        }
+         .subtitle { /* Style for the specific subtitle */
+             color: #93c5fd;
+             margin-top: 0.6rem; /* Adjust margin */
+             font-size: 1.1rem; /* Adjust font size */
+         }
+        h2 {
+             font-size: 1.5rem; /* Adjust section title size */
+             font-weight: 600;
+             margin-bottom: 1rem; /* Adjust margin */
+             color: #93c5fd; /* text-blue-300 equivalent */
+        }
+        h3 {
+             font-size: 1.1rem; /* Adjust subtitle size within cards */
+             font-weight: 500;
+             margin-bottom: 0.5rem; /* Adjust margin */
+        }
+        p {
+            font-size: 0.9rem; /* Adjust paragraph size */
+        }
+        .text-sm {
+            font-size: 0.8rem; /* Adjust small text size */
+        }
+         .text-base { /* Style for application titles */
+             font-size: 1rem;
+             font-weight: 500;
+         }
+
+        /* Specific section styles */
+        .applications-grid {
+             display: grid;
+             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); /* Responsive columns for applications */
+             gap: 0.8rem; /* Adjust gap */
+             margin-top: 0.8rem; /* Adjust margin */
+        }
+
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .slide-container {
+                width: 95%;
+                padding: 1rem;
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+            .grid-container {
+                grid-template-columns: 1fr; /* Single column layout */
+                gap: 1rem;
+            }
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 1.5rem;
+            }
+            .subtitle {
+                 font-size: 1rem;
+                 margin-top: 0.4rem;
+            }
+            h2 {
+                font-size: 1.3rem;
+                margin-bottom: 0.8rem;
+            }
+            h3 {
+                font-size: 1rem;
+                margin-bottom: 0.4rem;
+            }
+            p {
+                font-size: 0.85rem;
+            }
+             .text-sm {
+                font-size: 0.75rem;
+            }
+             .text-base {
+                 font-size: 0.9rem;
+             }
+            .feature-card {
+                padding: 0.8rem;
+                margin-bottom: 0.8rem;
+            }
+             .step-box {
+                padding: 0.6rem 0.8rem;
+                margin-bottom: 0.6rem;
+             }
+             .step-number {
+                width: 1.4rem;
+                height: 1.4rem;
+                line-height: 1.4rem;
+                font-size: 0.7rem;
+                margin-right: 0.4rem;
+             }
+            .presenter-badge {
+                bottom: 1rem;
+                right: 1rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.7rem;
+            }
+             .presenter-badge .icon {
+                width: 1rem;
+                height: 1rem;
+             }
+            .section-number {
+                width: 2rem;
+                height: 2rem;
+                font-size: 1rem;
+                top: 1rem;
+                left: 1rem;
+            }
+            .code-block {
+                font-size: 0.75rem;
+                padding: 0.6rem;
+            }
+             .chart-container {
+                 height: 200px;
+                 min-height: 150px;
+                 padding: 0.5rem;
+                 margin-bottom: 0.8rem;
+             }
+            .applications-grid {
+                 grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+                 gap: 0.6rem;
+                 margin-top: 0.6rem;
+            }
+             .applications-grid .step-box { /* Adjust step box padding within applications grid */
+                 padding: 0.5rem 0.8rem;
+                 margin-bottom: 0; /* Remove bottom margin */
+             }
+             .applications-grid .step-number {
+                display: none; /* Hide step number in applications grid */
+             }
+             .applications-grid .highlight {
+                 font-weight: 600; /* Keep highlight weight */
+             }
+             .applications-grid h4 { /* Adjust application title size */
+                 font-size: 0.9rem;
+             }
+             .applications-grid p { /* Adjust application description size */
+                 font-size: 0.75rem;
+             }
+
+
+        }
+
+        @media (max-width: 500px) {
+             h1 {
+                font-size: 1.75rem;
+             }
+             .subtitle {
+                font-size: 0.9rem;
+             }
+             h2 {
+                font-size: 1.2rem;
+             }
+             h3 {
+                font-size: 1rem;
+             }
+             p {
+                font-size: 0.8rem;
+             }
+             .text-sm {
+                font-size: 0.7rem;
+            }
+             .text-base {
+                 font-size: 0.8rem;
+             }
+            .presenter-badge {
+                bottom: 0.5rem;
+                right: 0.5rem;
+                padding: 0.3rem 0.6rem;
+                font-size: 0.6rem;
+            }
+             .presenter-badge .icon {
+                width: 0.8rem;
+                height: 0.8rem;
+             }
+             .section-number {
+                width: 1.5rem;
+                height: 1.5rem;
+                font-size: 0.8rem;
+                top: 0.8rem;
+                left: 0.8rem;
+            }
+            .code-block {
+                font-size: 0.7rem;
+                padding: 0.5rem;
+            }
+             .chart-container {
+                 height: 150px;
+                 min-height: 120px;
+                 padding: 0.4rem;
+                 margin-bottom: 0.6rem;
+             }
+             .applications-grid {
+                 gap: 0.4rem;
+             }
+             .applications-grid h4 {
+                 font-size: 0.8rem;
+             }
+             .applications-grid p {
+                 font-size: 0.7rem;
+             }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container p-16 relative">
+        <div class="section-number">2</div>
+
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold">
+                <span class="title-accent">Aplicaciones de ECC en Protocolos de Seguridad</span>
+            </h1>
+            <p class="subtitle">Firmas digitales y cifrado con curvas elípticas</p>
+        </div>
+
+        <div class="grid-container">
+            <div>
+                <h2 class="text-2xl font-semibold mb-3">
+                    <span class="icon icon-signature"></span>Firmas Digitales con ECDSA
+                </h2>
+
+                <div class="feature-card">
+                    <p class="mb-3">Elliptic Curve Digital Signature Algorithm</p>
+
+                    <div class="step-box">
+                        <div class="step-number">1</div>
+                        <div>
+                            <span class="highlight">Firmar:</span> Generar firma (r,s) a partir del hash del mensaje y clave privada
+                        </div>
+                    </div>
+
+                    <div class="step-box">
+                        <div class="step-number">2</div>
+                        <div>
+                            <span class="highlight">Verificar:</span> Comprobar la firma usando la clave pública del firmante
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+<span class="comment"># Pseudocódigo ECDSA</span>
+<span class="keyword">function</span> <span class="function">sign</span>(<span class="variable">mensaje</span>, <span class="variable">clavePrivada</span>):
+    <span class="variable">hash</span> = <span class="function">hashFunction</span>(<span class="variable">mensaje</span>)
+    <span class="variable">k</span> = <span class="function">generarAleatorio</span>()
+    <span class="variable">r</span> = (<span class="variable">k</span>·G).x <span class="comment"># coordenada x</span>
+    <span class="variable">s</span> = <span class="variable">k</span>⁻¹ · (<span class="variable">hash</span> + <span class="variable">r</span> · <span class="variable">clavePrivada</span>) mod n
+    <span class="keyword">return</span> (<span class="variable">r</span>, <span class="variable">s</span>)
+
+<span class="keyword">function</span> <span class="function">verify</span>(<span class="variable">mensaje</span>, <span class="variable">firma</span>, <span class="variable">clavePublica</span>):
+    (<span class="variable">r</span>, <span class="variable">s</span>) = <span class="variable">firma</span>
+    <span class="variable">hash</span> = <span class="function">hashFunction</span>(<span class="variable">mensaje</span>)
+    <span class="variable">u1</span> = (<span class="variable">hash</span> · <span class="variable">s</span>⁻¹) mod n
+    <span class="variable">u2</span> = (<span class="variable">r</span> · <span class="variable">s</span>⁻¹) mod n
+    <span class="variable">P</span> = <span class="variable">u1</span>·G + <span class="variable">u2</span>·<span class="variable">clavePublica</span>
+    <span class="keyword">return</span> P.x == <span class="variable">r</span></div>
+                </div>
+
+                <h2 class="text-2xl font-semibold mt-4 mb-3">
+                    <span class="icon icon-chart"></span>Ventajas de Eficiencia
+                </h2>
+
+                <div class="feature-card">
+                    <p class="mb-2">Comparativa con algoritmos tradicionales</p>
+
+                    <div class="chart-container">
+                        <canvas id="efficiencyChart"></canvas>
+                    </div>
+
+                    <div class="applications-grid">
+                        <div class="step-box">
+                             <div>
+                                <h4 class="text-base font-medium highlight">ECC-256</h4>
+                                <p class="text-sm">Seguridad equivalente a RSA-3072</p>
+                                <p class="text-sm">Claves 8-10x más pequeñas</p>
+                            </div>
+                        </div>
+
+                        <div class="step-box">
+                             <div>
+                                <h4 class="text-base font-medium highlight">Rendimiento</h4>
+                                <p class="text-sm">Menor consumo de CPU y memoria</p>
+                                <p class="text-sm">Ideal para dispositivos IoT y móviles</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-sm mt-3">
+                        La implementación debe seguir estándares como <span class="highlight">SEC1</span>, <span class="highlight">ISO/IEC 15946-3</span> o <span class="highlight">ANSI X9.63</span> para garantizar interoperabilidad y seguridad.
+                    </p>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-semibold mb-3">
+                    <span class="icon icon-lock"></span>Cifrado de Mensajes con ECIES
+                </h2>
+
+                <div class="feature-card">
+                    <p class="mb-3">Elliptic Curve Integrated Encryption Scheme</p>
+
+                    <div class="step-box">
+                        <div class="step-number">1</div>
+                        <div>
+                            <span class="highlight">Híbrido:</span> Combina ECC con cifrado simétrico para eficiencia
+                        </div>
+                    </div>
+
+                    <div class="step-box">
+                        <div class="step-number">2</div>
+                        <div>
+                            <span class="highlight">Protección:</span> Confidencialidad e integridad del mensaje
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+<span class="comment"># Pseudocódigo ECIES</span>
+<span class="keyword">function</span> <span class="function">encrypt</span>(<span class="variable">mensaje</span>, <span class="variable">clavePublicaB</span>):
+    <span class="comment"># 1. Generar par de claves efímero</span>
+    <span class="variable">r</span> = <span class="function">generarAleatorio</span>()
+    <span class="variable">R</span> = <span class="variable">r</span>·G
+   
+    <span class="comment"># 2. Derivar clave compartida</span>
+    <span class="variable">S</span> = <span class="variable">r</span>·<span class="variable">clavePublicaB</span>
+    <span class="variable">kdf_output</span> = <span class="function">KDF</span>(<span class="variable">S</span>)
+    <span class="variable">kEnc</span> = <span class="variable">kdf_output</span>[0..16] <span class="comment"># clave cifrado</span>
+    <span class="variable">kMac</span> = <span class="variable">kdf_output</span>[16..32] <span class="comment"># clave MAC</span>
+   
+    <span class="comment"># 3. Cifrar y proteger</span>
+    <span class="variable">c</span> = <span class="function">AES_Encrypt</span>(<span class="variable">kEnc</span>, <span class="variable">mensaje</span>)
+    <span class="variable">t</span> = <span class="function">HMAC</span>(<span class="variable">kMac</span>, <span class="variable">c</span>)
+   
+    <span class="keyword">return</span> (<span class="variable">R</span>, <span class="variable">c</span>, <span class="variable">t</span>)</div>
+
+                    <div class="step-box mt-3">
+                        <div class="step-number">3</div>
+                        <div>
+                            <span class="highlight">Descifrado:</span> El receptor calcula la misma clave compartida usando su clave privada y R
+                        </div>
+                    </div>
+                </div>
+
+                <div class="feature-card mt-4">
+                    <h3 class="text-lg font-semibold mb-2 highlight">Aplicaciones Prácticas</h3>
+
+                    <div class="applications-grid">
+                         <div class="step-box">
+                             <div>
+                                <h4 class="text-base font-medium highlight">TLS/SSL</h4>
+                                <p class="text-sm">ECDHE para intercambio de claves en HTTPS</p>
+                            </div>
+                        </div>
+
+                        <div class="step-box">
+                             <div>
+                                <h4 class="text-base font-medium highlight">SSH</h4>
+                                <p class="text-sm">Autenticación y cifrado mediante ECDSA</p>
+                            </div>
+                        </div>
+
+                        <div class="step-box">
+                             <div>
+                                <h4 class="text-base font-medium highlight">PGP/GPG</h4>
+                                <p class="text-sm">Firmas digitales y cifrado de correos</p>
+                            </div>
+                        </div>
+
+                        <div class="step-box">
+                             <div>
+                                <h4 class="text-base font-medium highlight">Blockchain</h4>
+                                <p class="text-sm">Firmas de transacciones en criptomonedas</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="text-sm mt-3">
+                        La implementación debe seguir estándares como <span class="highlight">SEC1</span>, <span class="highlight">ISO/IEC 15946-3</span> o <span class="highlight">ANSI X9.63</span> para garantizar interoperabilidad y seguridad.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="presenter-badge">
+            <span class="icon icon-user"></span>
+            <span>Presentado por: <strong>Raúl Esquivel</strong></span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Efficiency comparison chart
+            const ctx = document.getElementById('efficiencyChart').getContext('2d');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['128 bits', '192 bits', '256 bits'],
+                    datasets: [
+                        {
+                            label: 'ECC (bits)',
+                            backgroundColor: 'rgba(79, 172, 254, 0.7)',
+                            borderColor: 'rgba(79, 172, 254, 1)',
+                            borderWidth: 1,
+                            data: [256, 384, 521]
+                        },
+                        {
+                            label: 'RSA (bits)',
+                            backgroundColor: 'rgba(253, 186, 116, 0.7)',
+                            borderColor: 'rgba(253, 186, 116, 1)',
+                            borderWidth: 1,
+                            data: [3072, 7680, 15360]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Tamaño de clave (bits)',
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Nivel de seguridad',
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.9)'
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

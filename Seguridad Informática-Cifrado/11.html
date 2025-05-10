@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retos y Futuro de ECC</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(120deg, #1a2a6c, #2a4365);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Prevents overall page horizontal scroll */
+        }
+        .slide-container {
+            width: 95%; /* Adjust width */
+            max-width: 1280px; /* Max width */
+            min-height: auto; /* Height adapts to content */
+            position: relative;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            margin: 20px auto; /* Center container */
+            padding: 1rem; /* Adjust padding */
+        }
+        .title-accent {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 1rem; /* Adjust padding */
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            height: auto; /* Height adapts to content */
+            border-left: 4px solid #4facfe;
+            transition: transform 0.3s ease;
+            margin-bottom: 1rem; /* Adjust margin */
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .presenter-badge {
+            position: absolute;
+            bottom: 1.5rem; /* Adjust position */
+            right: 1.5rem; /* Adjust position */
+            background: rgba(79, 172, 254, 0.2);
+            padding: 0.6rem 1.2rem; /* Adjust padding */
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(79, 172, 254, 0.5);
+            font-size: 0.8rem; /* Adjust font size */
+            z-index: 20; /* Ensure it's on top */
+        }
+        .presenter-badge span { /* Adjust span inside badge */
+            margin-left: 0.3rem; /* Adjust margin */
+        }
+        .section-number {
+            position: absolute;
+            top: 1.5rem; /* Adjust position */
+            left: 1.5rem; /* Adjust position */
+            background: #4facfe;
+            width: 2.5rem; /* Adjust size */
+            height: 2.5rem; /* Adjust size */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem; /* Adjust font size */
+            box-shadow: 0 0 10px rgba(79, 172, 254, 0.6);
+        }
+        .grid-container { /* Main 2-column layout */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
+            gap: 1.5rem; /* Adjust gap */
+        }
+        .highlight {
+            color: #4facfe;
+            font-weight: 600;
+        }
+        .warning {
+            color: #f59e0b; /* Tailwind yellow-500 */
+            font-weight: 600;
+        }
+        .safe {
+            color: #10b981; /* Tailwind green-500 */
+            font-weight: 600;
+        }
+        /* Custom Icons */
+        .icon {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 8px;
+            position: relative;
+            top: 0px;
+        }
+        .icon-quantum {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='%234facfe' d='M0 96C0 60.7 28.7 32 64 32h64c17.7 0 32 14.3 32 32s-14.3 32-32 32H64V416h64c17.7 0 32 14.3 32 32s-14.3 32-32 32H64c-35.3 0-64-28.7-64-64V96zM384 32c17.7 0 32 14.3 32 32s-14.3 32-32 32H224c-17.7 0-32-14.3-32-32s14.3-32 32-32h160zm0 384c17.7 0 32 14.3 32 32s-14.3 32-32 32H224c-17.7 0-32-14.3-32-32s14.3-32 32-32h160z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .icon-shield {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%234facfe' d='M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.7 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .icon-curve {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='%234facfe' d='M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.2 288 416 288c17.7 0 32-14.3 32-32s-14.3-32-32-32l-306.7 0L214.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .icon-future {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%234facfe' d='M175 175c9.4-9.3 24.6-9.3 33.1 0l47.5 47.5c10.1 10.1 2.9 27.3-11.3 27.3H205.3v96c0 17.7-14.3 32-32 32l-64 0c-17.7 0-32-14.3-32-32V336c0-17.7 14.3-32 32-32h96V265.3c0-14.3 17.2-21.4 27.3-11.3l47.5 47.5c9.3 9.4 9.3 24.6 0 33.1l-47.5 47.5c-10.1 10.1-27.3 2.9-27.3-11.3V304H109.3c-14.3 0-21.4-17.2-11.3-27.3l47.5-47.5c9.4-9.3 24.6-9.3 33.1 0l47.5 47.5c10.1 10.1 2.9 27.3-11.3 27.3H176V400h64v-37.7c0-14.3 17.2-21.4 27.3-11.3l47.5 47.5c9.3 9.4 9.3 24.6 0 33.1l-47.5 47.5c-10.1 10.1-27.3 2.9-27.3-11.3V432l-64 0c-17.7 0-32-14.3-32-32v-96H109.3c-14.3 0-21.4-17.2-11.3-27.3l47.5-47.5c9.4-9.3 24.6-9.3 33.1 0l47.5 47.5c10.1 10.1 2.9 27.3-11.3 27.3H176V176c0-17.7 14.3-32 32-32l64 0c17.7 0 32 14.3 32 32v37.7c0 14.3-17.2 21.4-27.3 11.3l-47.5-47.5c-9.4-9.3-24.6-9.3-33.1 0l47.5 47.5c10.1 10.1 2.9 27.3-11.3 27.3H208V176l-64 0v37.7c0 14.3-17.2 21.4-27.3 11.3L69.3 177.5c-9.3-9.4-9.3-24.6 0-33.1l47.5-47.5c10.1-10.1 27.3-2.9 27.3 11.3V145.9l64 0c17.7 0 32 14.3 32 32V274.7c0 14.3-17.2 21.4-27.3 11.3L165.3 238.6c-9.3-9.4-9.3-24.6 0-33.1l47.5-47.5c10.1-10.1 27.3-2.9 27.3 11.3V208h37.7c14.3 0 21.4 17.2 11.3 27.3L241.5 283c-9.4 9.3-24.6 9.3-33.1 0l-47.5-47.5c-10.1-10.1-2.9-27.3 11.3-27.3H210V175z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .icon-user {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='#fff' d='M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .chart-container {
+            position: relative;
+            height: auto; /* Height adapts to content */
+            min-height: 200px; /* Minimum height */
+            margin-top: 0.8rem; /* Adjust margin */
+            background: rgba(26, 32, 44, 0.4);
+            border-radius: 8px;
+            padding: 1rem; /* Adjust padding */
+            margin-bottom: 1rem; /* Adjust margin */
+             display: flex; /* Use flexbox to center chart */
+             justify-content: center;
+             align-items: center;
+             overflow: hidden; /* Hide overflow within chart container if canvas gets too big */
+        }
+         .chart-container canvas {
+             max-width: 100% !important; /* Ensure canvas doesn't exceed container width */
+             height: auto !important; /* Ensure canvas height is flexible */
+         }
+        .pqc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Responsive PQC grid */
+            gap: 0.8rem; /* Adjust gap */
+            margin-top: 0.8rem; /* Adjust margin */
+        }
+        .pqc-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 0.8rem; /* Adjust padding */
+            text-align: center;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .pqc-item:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(79, 172, 254, 0.5);
+        }
+        .pqc-icon {
+            margin: 0 auto 0.5rem; /* Adjust margin */
+            width: 2rem; /* Adjust size */
+            height: 2rem; /* Adjust size */
+            border-radius: 8px;
+            background: rgba(79, 172, 254, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem; /* Adjust font size */
+            font-weight: bold;
+        }
+        .mermaid-container {
+            background: rgba(26, 32, 44, 0.4);
+            border-radius: 8px;
+            padding: 1rem; /* Adjust padding */
+            margin-top: 0.8rem; /* Adjust margin */
+            height: auto; /* Height adapts to content */
+            min-height: 180px; /* Minimum height */
+            max-height: 300px; /* **Added max-height to limit vertical size** */
+            display: flex;
+            justify-content: center;
+            align-items: flex-start; /* Align items to start to prevent vertical centering issues with tall diagrams */
+            overflow: auto; /* **Combined overflow-x and overflow-y to auto** */
+            position: relative; /* Added position relative */
+        }
+        .mermaid {
+             width: 100%; /* Try to make the Mermaid target fill container width */
+             height: auto; /* Keep height auto */
+             text-align: center;
+             min-width: min-content; /* Added min-width */
+         }
+        /* Simplified CSS for the SVG - sizing handled by JS */
+        .mermaid svg {
+            display: block;
+            margin: 0 auto; /* Center the SVG */
+            /* Remove width, height, max-width here to let JS fully control */
+        }
+        .feature-list {
+            list-style-type: none;
+            padding-left: 0.5rem; /* Adjust padding */
+            margin: 0.5rem 0; /* Adjust margin */
+        }
+        .feature-list li {
+            position: relative;
+            padding-left: 1.2rem; /* Adjust padding */
+            margin-bottom: 0.5rem; /* Adjust margin */
+            font-size: 0.9rem; /* Adjust font size */
+        }
+        .feature-list li:before {
+            content: "•";
+            color: #4facfe;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+            font-size: 1rem; /* Adjust bullet size */
+            line-height: 1; /* Ensure consistent line height */
+        }
+        .timeline {
+            position: relative;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+        .timeline-item {
+            position: relative;
+            padding-left: 1.8rem; /* Adjust padding */
+            margin-bottom: 0.8rem; /* Adjust margin */
+             font-size: 0.9rem; /* Adjust font size */
+        }
+        .timeline-item:before {
+            content: "";
+            position: absolute;
+            left: 0.5rem; /* Adjust position */
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: rgba(79, 172, 254, 0.5);
+        }
+        .timeline-dot {
+            position: absolute;
+            left: 0.1rem; /* Adjust position */
+            top: 0.3rem; /* Adjust position */
+            width: 0.8rem; /* Adjust size */
+            height: 0.8rem; /* Adjust size */
+            border-radius: 50%;
+            background: #4facfe;
+        }
+        .timeline-year {
+            font-weight: bold;
+            color: #4facfe;
+            margin-right: 0.5rem; /* Adjust margin */
+            font-size: 0.9rem; /* Adjust font size */
+        }
+
+
+        /* Text Sizes and Margins */
+        h1 {
+            font-size: 2.5rem; /* Adjust title size */
+            font-weight: bold;
+            margin-bottom: 1.5rem; /* Adjust margin */
+        }
+         .subtitle { /* Style for the specific subtitle */
+             color: #93c5fd;
+             margin-top: 0.6rem; /* Adjust margin */
+             font-size: 1.1rem; /* Adjust font size */
+         }
+        h2 {
+             font-size: 1.5rem; /* Adjust section title size */
+             font-weight: 600;
+             margin-bottom: 1rem; /* Adjust margin */
+             color: #93c5fd; /* text-blue-300 equivalent */
+        }
+         h3 { /* PQC item title */
+             font-size: 1rem;
+             font-weight: 600;
+             color: #10b981; /* safe equivalent */
+             margin-bottom: 0.2rem;
+         }
+         p.text-xs { /* PQC item description */
+             font-size: 0.75rem;
+         }
+
+
+        /* General adjustments for consistency */
+        p { font-size: 0.9rem; }
+        .mb-6 { margin-bottom: 1.2rem; }
+        .mb-3 { margin-bottom: 0.8rem; }
+        .mt-4 { margin-top: 1rem; }
+
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .slide-container {
+                width: 95%;
+                padding: 1rem;
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+            .grid-container { /* Main 2-column grid */
+                grid-template-columns: 1fr; /* Single column layout */
+                gap: 1rem;
+            }
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 1.5rem;
+            }
+            .subtitle {
+                 font-size: 1rem;
+                 margin-top: 0.4rem;
+            }
+            h2 {
+                font-size: 1.3rem;
+                margin-bottom: 0.8rem;
+            }
+            .feature-card {
+                padding: 0.8rem;
+                margin-bottom: 0.8rem;
+            }
+             .chart-container {
+                 min-height: 180px;
+                 padding: 0.8rem;
+                 margin-bottom: 0.8rem;
+             }
+             .pqc-grid {
+                 grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); /* Adjust min width */
+                 gap: 0.6rem;
+                 margin-top: 0.6rem;
+             }
+             .pqc-item {
+                 padding: 0.6rem;
+             }
+             .pqc-icon {
+                 width: 1.8rem;
+                 height: 1.8rem;
+                 font-size: 0.9rem;
+                 margin-bottom: 0.4rem;
+             }
+             h3 {
+                 font-size: 0.9rem;
+                 margin-bottom: 0.2rem;
+             }
+             p.text-xs {
+                 font-size: 0.7rem;
+             }
+            .feature-list {
+                 margin: 0.4rem 0;
+             }
+             .feature-list li {
+                 font-size: 0.8rem;
+                 padding-left: 1.1rem;
+                 margin-bottom: 0.4rem;
+             }
+             .feature-list li:before {
+                 font-size: 0.9rem;
+             }
+            .timeline-item {
+                 padding-left: 1.6rem;
+                 margin-bottom: 0.6rem;
+                 font-size: 0.8rem;
+             }
+             .timeline-item:before {
+                 left: 0.4rem;
+             }
+             .timeline-dot {
+                 left: 0;
+                 top: 0.3rem;
+                 width: 0.7rem;
+                 height: 0.7rem;
+             }
+             .timeline-year {
+                 margin-right: 0.4rem;
+                 font-size: 0.8rem;
+             }
+            .mermaid-container {
+                 min-height: 180px;
+                 max-height: 250px; /* Adjusted max height */
+                 padding: 0.8rem;
+                 margin-top: 0.6rem;
+                 margin-bottom: 0.8rem;
+                 align-items: flex-start; /* Important for tall diagrams */
+             }
+             /* Simplified SVG CSS */
+             .mermaid svg {
+                  max-width: 100%; /* Keep max-width for initial rendering safety */
+                  height: auto;
+             }
+            .presenter-badge {
+                bottom: 1rem;
+                right: 1rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.7rem;
+            }
+             .presenter-badge .icon {
+                width: 1rem;
+                height: 1rem;
+             }
+            .section-number {
+                width: 2rem;
+                height: 2rem;
+                font-size: 1rem;
+                top: 1rem;
+                left: 1rem;
+            }
+             /* Ensure the feature card in the second column has bottom margin when stacked */
+             .grid-container > div:last-child > .feature-card:last-child {
+                 margin-bottom: 0;
+             }
+
+        }
+
+        @media (max-width: 500px) {
+             h1 {
+                font-size: 1.75rem;
+             }
+             .subtitle {
+                font-size: 0.9rem;
+             }
+             h2 {
+                font-size: 1.2rem;
+             }
+            .feature-card {
+                 padding: 0.6rem;
+                 margin-bottom: 0.6rem;
+             }
+             .chart-container {
+                 min-height: 150px;
+                 padding: 0.6rem;
+                 margin-bottom: 0.6rem;
+             }
+             .pqc-grid {
+                 grid-template-columns: repeat(auto-fit, minmax(60px, 1fr)); /* Further adjust min width */
+                 gap: 0.4rem;
+                 margin-top: 0.4rem;
+             }
+             .pqc-item {
+                 padding: 0.5rem;
+             }
+             .pqc-icon {
+                 width: 1.5rem;
+                 height: 1.5rem;
+                 font-size: 0.8rem;
+                 margin-bottom: 0.3rem;
+             }
+             h3 {
+                 font-size: 0.8rem;
+             }
+             p.text-xs {
+                 font-size: 0.65rem;
+             }
+             .feature-list li {
+                 font-size: 0.7rem;
+                 padding-left: 1rem;
+                 margin-bottom: 0.3rem;
+             }
+             .feature-list li:before {
+                 font-size: 0.8rem;
+             }
+             .timeline-item {
+                 padding-left: 1.4rem;
+                 margin-bottom: 0.5rem;
+                 font-size: 0.75rem;
+             }
+             .timeline-item:before {
+                 left: 0.3rem;
+             }
+             .timeline-dot {
+                 left: 0.05rem;
+                 top: 0.25rem;
+                 width: 0.6rem;
+                 height: 0.6rem;
+             }
+             .timeline-year {
+                 margin-right: 0.3rem;
+                 font-size: 0.75rem;
+             }
+            .mermaid-container {
+                 min-height: 150px;
+                 max-height: 200px; /* Further adjusted max height */
+                 padding: 0.6rem;
+                 margin-top: 0.4rem;
+                 margin-bottom: 0.6rem;
+                 align-items: flex-start; /* Important for tall diagrams */
+             }
+             /* Simplified SVG CSS */
+             .mermaid svg {
+                  max-width: 100%; /* Keep max-width for initial rendering safety */
+                  height: auto;
+             }
+            .presenter-badge {
+                bottom: 0.5rem;
+                right: 0.5rem;
+                padding: 0.3rem 0.6rem;
+                font-size: 0.6rem;
+            }
+             .presenter-badge .icon {
+                width: 0.8rem;
+                height: 0.8rem;
+             }
+             .section-number {
+                width: 1.5rem;
+                height: 1.5rem;
+                font-size: 0.8rem;
+                top: 0.8rem;
+                left: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container p-16 relative">
+        <div class="section-number">4</div>
+
+        <div class="text-center mb-6">
+            <h1 class="text-4xl font-bold">
+                <span class="title-accent">Retos y Futuro de ECC</span>
+            </h1>
+            <p class="subtitle">Computación cuántica, alternativas post-cuánticas y tendencias futuras</p>
+        </div>
+
+        <div class="grid-container">
+            <div>
+                <h2 class="text-2xl font-semibold mb-3">
+                    <span class="icon icon-quantum"></span>Riesgos de la Computación Cuántica
+                </h2>
+
+                <div class="feature-card mb-4">
+                    <p class="mb-2">El <span class="warning">algoritmo de Shor</span> puede romper el problema del logaritmo discreto elíptico en tiempo polinómico.</p>
+
+                    <div class="chart-container">
+                        <canvas id="quantumImpactChart"></canvas>
+                    </div>
+
+                    <div class="mt-3">
+                         <ul class="feature-list">
+                             <li><span class="warning">ECC y RSA</span> quedarán obsoletos cuando existan computadores cuánticos prácticos</li>
+                             <li>Se estima que un computador cuántico con <span class="warning">~4000 qubits</span> podría comprometer ECC-256</li>
+                             <li>Tiempo estimado para tener esta capacidad: <span class="warning">5-15 años</span></li>
+                         </ul>
+                    </div>
+                </div>
+
+                <h2 class="text-2xl font-semibold mb-3">
+                    <span class="icon icon-shield"></span>Criptografía Post-Cuántica
+                </h2>
+
+                <div class="feature-card">
+                    <p class="mb-2">Alternativas resistentes a ataques cuánticos:</p>
+
+                    <div class="pqc-grid">
+                        <div class="pqc-item">
+                            <div class="pqc-icon">L</div>
+                            <h3 class="text-base font-semibold safe">Retículos</h3>
+                            <p class="text-xs">CRYSTALS-Kyber</p>
+                        </div>
+                        <div class="pqc-item">
+                            <div class="pqc-icon">H</div>
+                            <h3 class="text-base font-semibold safe">Hash</h3>
+                            <p class="text-xs">SPHINCS+</p>
+                        </div>
+                        <div class="pqc-item">
+                            <div class="pqc-icon">C</div>
+                            <h3 class="text-base font-semibold safe">Códigos</h3>
+                            <p class="text-xs">Classic McEliece</p>
+                        </div>
+                        <div class="pqc-item">
+                            <div class="pqc-icon">I</div>
+                            <h3 class="text-base font-semibold safe">Isogenias</h3>
+                            <p class="text-xs">SIKE</p>
+                        </div>
+                    </div>
+
+                    <div class="mt-3">
+                         <p class="text-sm"><span class="highlight">NIST</span> ha seleccionado algoritmos finalistas para estandarización:</p>
+                         <ul class="feature-list">
+                             <li><span class="safe">CRYSTALS-Kyber:</span> Intercambio de claves basado en retículos</li>
+                             <li><span class="safe">CRYSTALS-Dilithium:</span> Firma digital basada en retículos</li>
+                             <li><span class="safe">SPHINCS+:</span> Firma digital basada en funciones hash</li>
+                         </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-semibold mb-3">
+                    <span class="icon icon-curve"></span>Nuevas Curvas y Estándares
+                </h2>
+
+                <div class="feature-card mb-4">
+                    <p class="mb-3">Evolución de curvas elípticas y estándares:</p>
+
+                    <ul class="timeline">
+                        <li class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <span class="timeline-year">2006</span>
+                            <span>NIST publica FIPS 186-3 con curvas P-256, P-384, P-521</span>
+                        </li>
+                        <li class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <span class="timeline-year">2015</span>
+                            <span>SafeCurves propone mejores criterios de seguridad</span>
+                        </li>
+                        <li class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <span class="timeline-year">2020</span>
+                            <span>Edwards curves (Ed25519) ampliamente adoptadas</span>
+                        </li>
+                        <li class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <span class="timeline-year">2023</span>
+                            <span>NIST inicia transición hacia criptografía post-cuántica</span>
+                        </li>
+                        <li class="timeline-item">
+                            <div class="timeline-dot"></div>
+                            <span class="timeline-year">2025+</span>
+                            <span>Implementación progresiva de nuevos estándares híbridos</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <h2 class="text-2xl font-semibold mb-3">
+                    <span class="icon icon-future"></span>Tendencias Futuras
+                </h2>
+
+                <div class="mermaid-container">
+                    <div class="mermaid" id="mermaidDiagram">
+                        flowchart LR
+                            A[Actualidad]
+                            B[Transición]
+                            C[Futuro]
+
+                            subgraph "Presente (Actual)"
+                                A1[ECC + AES]
+                                A2[RSA Legacy]
+                            end
+
+                            subgraph "Transición (3-7 años)"
+                                B1[Sistemas Híbridos<br>ECC + PQC]
+                                B2[Migración Gradual]
+                            end
+
+                            subgraph "Futuro (7+ años)"
+                                C1[Criptografía<br>Post-Cuántica]
+                                C2[Nuevos Paradigmas]
+                            end
+
+                            A --> B
+                            B --> C
+
+                            style A1 fill:#1a365d,stroke:#4facfe,color:#fff
+                            style A2 fill:#1a365d,stroke:#4facfe,color:#fff
+                            style B1 fill:#1e4d36,stroke:#10b981,color:#fff
+                            style B2 fill:#1e4d36,stroke:#10b981,color:#fff
+                            style C1 fill:#3f2c5f,stroke:#8b5cf6,color:#fff
+                            style C2 fill:#3f2c5f,stroke:#8b5cf6,color:#fff
+                    </div>
+                </div>
+
+                <div class="feature-card mt-4">
+                    <h3 class="text-lg font-semibold highlight mb-2">Futuro de la Criptografía Híbrida</h3>
+
+                    <ul class="feature-list">
+                        <li><span class="safe">Sistemas multi-nivel</span> que combinan ECC con algoritmos post-cuánticos</li>
+                        <li><span class="safe">Implementaciones seguridad adelantada</span> (qué hacer si una de las dos se rompe)</li>
+                        <li><span class="safe">Optimización de rendimiento</span> para IoT y dispositivos restringidos</li>
+                        <li><span class="safe">Curvas más robustas</span> frente a implementaciones defectuosas</li>
+                        <li><span class="safe">Nuevos paradigmas híbridos:</span> Combinación de múltiples familias PQC</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="presenter-badge">
+            <span class="icon icon-user"></span>
+            <span style="margin-left: 5px;">Presentado por: <strong>Luiz Huayta</strong></span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Define the function to resize the Mermaid SVG
+            const resizeMermaidSvg = function() {
+                const mermaidDiv = document.getElementById('mermaidDiagram');
+                const svgElement = mermaidDiv ? mermaidDiv.querySelector('svg') : null;
+
+                if (svgElement) {
+                    // Get the natural dimensions from the SVG's viewBox or getBBox
+                    const viewBox = svgElement.getAttribute('viewBox');
+                    let originalWidth, originalHeight;
+
+                    if (viewBox) {
+                        const viewBoxValues = viewBox.split(' ').map(Number);
+                        originalWidth = viewBoxValues[2];
+                        originalHeight = viewBoxValues[3];
+                        // Ensure viewBox is correctly set for scaling
+                        svgElement.setAttribute('viewBox', `0 0 ${originalWidth} ${originalHeight}`);
+                    } else {
+                        // Fallback if viewBox is not set as expected
+                        try {
+                            const bbox = svgElement.getBBox();
+                            originalWidth = bbox.width;
+                            originalHeight = bbox.height;
+                             // Set viewBox if it was missing - important for aspect ratio scaling
+                            svgElement.setAttribute('viewBox', `0 0 ${originalWidth} ${originalHeight}`);
+                         } catch (e) {
+                             console.error("Could not get SVG dimensions using getBBox:", e);
+                             return; // Stop if dimensions can't be determined
+                         }
+                    }
+
+                    // Get the container's current width
+                    const container = mermaidDiv.closest('.mermaid-container');
+                    if (!container) {
+                        console.error("Mermaid container not found.");
+                        return;
+                    }
+                    const containerWidth = container.offsetWidth;
+
+                    // Calculate the new height based on the aspect ratio and container width
+                    let targetWidth = containerWidth;
+                    let targetHeight = originalHeight * (targetWidth / originalWidth);
+
+                    // --- Optional: Add a maximum height constraint ---
+                    // If the calculated height exceeds the container's max-height, scale based on max-height instead
+                     const containerMaxHeight = parseFloat(getComputedStyle(container).maxHeight); // Get max-height from CSS
+                     if (!isNaN(containerMaxHeight) && targetHeight > containerMaxHeight && containerMaxHeight > 0) {
+                         // Scale to fit max height
+                         targetHeight = containerMaxHeight;
+                         targetWidth = originalWidth * (targetHeight / originalWidth); // Recalculate width based on max height
+                     }
+                    // --- End Optional Constraint ---
+
+
+                    // Explicitly set the width and height attributes on the SVG
+                    svgElement.setAttribute('width', targetWidth);
+                    svgElement.setAttribute('height', targetHeight);
+
+                    console.log("Mermaid Resize:");
+                    console.log("Container Width:", containerWidth);
+                    console.log("Original SVG Dimensions (viewBox or BBox):", originalWidth, originalHeight);
+                    console.log("Target SVG Dimensions (W x H):", targetWidth, targetHeight);
+                    console.log("Final SVG Attributes (Width x Height):", svgElement.getAttribute('width'), svgElement.getAttribute('height'));
+                    console.log("Final SVG viewBox:", svgElement.getAttribute('viewBox'));
+
+                }
+            };
+
+            // Initialize Mermaid with the afterRender callback
+            mermaid.initialize({
+                theme: 'dark',
+                securityLevel: 'loose',
+                startOnLoad: true,
+                flowchart: {
+                    useMaxWidth: false, // Keep this
+                    htmlLabels: true,
+                    curve: 'basis'
+                },
+                 themeVariables: { /* Match theme colors */
+                    primaryColor: '#1a365d', /* Emisor - dark blue */
+                    primaryTextColor: '#fff',
+                    secondaryColor: '#1e4d36', /* Receptor - dark green */
+                    secondaryTextColor: '#fff',
+                    tertiaryColor: '#4facfe', /* Blue accent for lines/text */
+                    lineColor: '#4facfe',
+                    noteBorderColor: '#4facfe',
+                    noteBkgColor: 'rgba(79, 172, 254, 0.2)',
+                    clusterBkg: 'rgba(25, 50, 75, 0.4)', /* Background for subgraphs */
+                    clusterBorder: '#4facfe',
+                    fontSize: '12px' /* Reduced font size */
+                 },
+                 afterRender: resizeMermaidSvg // Use the defined function
+            });
+
+             // Also call resize on window resize to make it truly responsive
+             window.addEventListener('resize', resizeMermaidSvg);
+
+
+            // Create the quantum impact chart
+            const ctx = document.getElementById('quantumImpactChart').getContext('2d');
+
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['RSA-2048', 'ECC-256', 'AES-256', 'Hash-256', 'CRYSTALS-Kyber', 'SPHINCS+'],
+                    datasets: [
+                        {
+                            label: 'Complejidad con computación clásica (bits)',
+                            backgroundColor: '#4facfe',
+                            data: [112, 128, 256, 128, 230, 250]
+                        },
+                        {
+                            label: 'Complejidad con computación cuántica (bits)',
+                            backgroundColor: '#f59e0b',
+                            data: [0, 0, 128, 64, 210, 130]
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Bits de seguridad',
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            },
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: 'rgba(255, 255, 255, 0.9)',
+                                boxWidth: 15,
+                                font: {
+                                    size: 11
+                                }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        title: {
+                            display: true,
+                            text: 'Impacto de la Computación Cuántica en Algoritmos Criptográficos',
+                            color: 'rgba(255, 255, 255, 0.9)',
+                            font: {
+                                size: 14,
+                                family: "'Montserrat', sans-serif"
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

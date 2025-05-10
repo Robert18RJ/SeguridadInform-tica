@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Funcionamiento Básico del ECC</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11.6.0/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(120deg, #1a2a6c, #2a4365);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Added to prevent horizontal scroll */
+        }
+        .slide-container {
+            width: 95%; /* Adjust width */
+            max-width: 1280px; /* Max width */
+            min-height: auto; /* Height adapts to content */
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            margin: 20px auto; /* Center container */
+            padding: 1rem; /* Adjust padding */
+        }
+        .title-accent {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 1rem; /* Adjust padding */
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            height: auto; /* Height adapts to content */
+            border-left: 4px solid #4facfe;
+            transition: transform 0.3s ease;
+            margin-bottom: 1rem; /* Adjust margin */
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .presenter-badge {
+            position: absolute;
+            bottom: 1.5rem; /* Adjust position */
+            right: 1.5rem; /* Adjust position */
+            background: rgba(79, 172, 254, 0.2);
+            padding: 0.6rem 1.2rem; /* Adjust padding */
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(79, 172, 254, 0.5);
+            font-size: 0.8rem; /* Adjust font size */
+            z-index: 20; /* Ensure it's on top */
+        }
+         .presenter-badge .icon { /* Adjust icon size within badge */
+            width: 18px;
+            height: 18px;
+         }
+        .section-number {
+            position: absolute;
+            top: 1.5rem; /* Adjust position */
+            left: 1.5rem; /* Adjust position */
+            background: #4facfe;
+            width: 2.5rem; /* Adjust size */
+            height: 2.5rem; /* Adjust size */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem; /* Adjust font size */
+            box-shadow: 0 0 10px rgba(79, 172, 254, 0.6);
+        }
+        .step-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 0.8rem 1.2rem; /* Adjust padding */
+            margin-bottom: 0.8rem; /* Adjust margin */
+            border-left: 3px solid rgba(79, 172, 254, 0.5);
+            position: relative;
+            font-size: 0.9rem; /* Adjust font size */
+        }
+        .step-number {
+            display: inline-block;
+            background: #4facfe;
+            width: 1.5rem; /* Adjust size */
+            height: 1.5rem; /* Adjust size */
+            border-radius: 50%;
+            text-align: center;
+            line-height: 1.5rem;
+            font-weight: 700;
+            font-size: 0.8rem; /* Adjust font size */
+            margin-right: 0.5rem; /* Adjust margin */
+        }
+        .math-highlight {
+            color: #4facfe;
+            font-weight: 600;
+        }
+        /* Icon classes with adjusted sizes */
+         .icon {
+            display: inline-block;
+            width: 18px; /* Adjust size */
+            height: 18px; /* Adjust size */
+            margin-right: 0.5rem; /* Adjust margin */
+            position: relative;
+            top: 2px; /* Adjust alignment */
+         }
+        .icon-key {
+             background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%234facfe' d='M336 352c97.2 0 176-78.8 176-176S433.2 0 336 0S160 78.8 160 176c0 18.7 2.9 36.8 8.3 53.7L7 391c-4.5 4.5-7 10.6-7 17v80c0 13.3 10.7 24 24 24h80c13.3 0 24-10.7 24-24v-40h40c13.3 0 24-10.7 24-24v-40h40c6.4 0 12.5-2.5 17-7l33.3-33.3c16.9 5.4 35 8.3 53.7 8.3zM376 96a40 40 0 1 1 0 80 40 40 0 1 1 0-80z'/%3E%3C/svg%3E") no-repeat center center;
+             background-size: contain;
+         }
+        .icon-exchange {
+             background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%234facfe' d='M377.941 169.941V216H134.059v-46.059c0-21.382-25.851-32.09-40.971-16.971L7.029 239.029c-9.373 9.373-9.373 24.568 0 33.941l86.059 86.059c15.119 15.119 40.971 4.411 40.971-16.971V296h243.882v46.059c0 21.382 25.851 32.09 40.971 16.971l86.059-86.059c9.373-9.373 9.373-24.568 0-33.941l-86.059-86.059c-15.119-15.12-40.971-4.412-40.971 16.97z'/%3E%3C/svg%3E") no-repeat center center;
+             background-size: contain;
+         }
+        .icon-cog {
+             background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%234facfe' d='M487.4 315.7l-42.6-24.6c4.3-23.2 4.3-47 0-70.2l42.6-24.6c4.9-2.8 7.1-8.6 5.5-14-11.1-35.6-30-67.8-54.7-94.6-3.8-4.1-10-5.1-14.8-2.3L380.8 110c-17.9-15.4-38.5-27.3-60.8-35.1V25.8c0-5.6-3.9-10.5-9.4-11.7-36.7-8.2-74.3-7.8-109.2 0-5.5 1.2-9.4 6.1-9.4 11.7V75c-22.2 7.9-42.8 19.8-60.8 35.1L88.7 85.5c-4.9-2.8-11-1.9-14.8 2.3-24.7 26.7-43.6 58.9-54.7 94.6-1.7 5.4.6 11.2 5.5 14L67.3 221c-4.3 23.2-4.3 47 0 70.2l-42.6 24.6c-4.9 2.8-7.1 8.6-5.5 14 11.1 35.6 30 67.8 54.7 94.6 3.8 4.1 10 5.1 14.8 2.3l42.6-24.6c17.9 15.4 38.5 27.3 60.8 35.1v49.2c0 5.6 3.9 10.5 9.4 11.7 36.7 8.2 74.3 7.8 109.2 0 5.5-1.2 9.4-6.1 9.4-11.7v-49.2c22.2-7.9 42.8-19.8 60.8-35.1l42.6 24.6c4.9 2.8 11 1.9 14.8-2.3 24.7-26.7 43.6-58.9 54.7-94.6 1.5-5.5-.7-11.3-5.6-14.1zM256 336c-44.1 0-80-35.9-80-80s35.9-80 80-80 80 35.9 80 80-35.9 80-80 80z'/%3E%3C/svg%3E") no-repeat center center;
+             background-size: contain;
+         }
+        .icon-user {
+             background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='%23fff' d='M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z'/%3E%3C/svg%3E") no-repeat center center;
+             background-size: contain;
+        }
+
+        /* Grid Layout */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
+            gap: 1.5rem; /* Adjust gap */
+        }
+
+        /* Text Sizes and Margins */
+        h1 {
+            font-size: 2.5rem; /* Adjust title size */
+            font-weight: bold;
+            margin-bottom: 2rem; /* Adjust margin */
+        }
+        h2 {
+             font-size: 1.5rem; /* Adjust section title size */
+             font-weight: 600;
+             margin-bottom: 1rem; /* Adjust margin */
+             color: #a7c9d9; /* text-blue-300 */
+        }
+        h3 {
+             font-size: 1.1rem; /* Adjust subtitle size */
+             font-weight: 500;
+             margin-bottom: 0.5rem; /* Adjust margin */
+             color: #89bdd3; /* text-blue-200 */
+        }
+        p {
+            font-size: 0.9rem; /* Adjust paragraph size */
+        }
+        .text-sm {
+            font-size: 0.8rem; /* Adjust small text size */
+        }
+         .text-xs {
+             font-size: 0.7rem; /* Adjust extra small text size */
+         }
+        .mt-2 { margin-top: 0.5rem; }
+        .mb-8 { margin-bottom: 1.5rem; }
+        .mb-5 { margin-bottom: 1.25rem; }
+        .mb-3 { margin-bottom: 0.8rem; }
+        .mt-3 { margin-top: 0.8rem; }
+        .mt-4 { margin-top: 1rem; }
+
+
+        /* Key Sequence */
+        .key-sequence {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 0.8rem; /* Adjust margin */
+            margin-bottom: 0.8rem; /* Adjust margin */
+        }
+        .key-box {
+            background: rgba(79, 172, 254, 0.1);
+            border: 1px solid rgba(79, 172, 254, 0.3);
+            padding: 0.4rem 0.8rem; /* Adjust padding */
+            border-radius: 4px;
+            margin: 0 0.4rem; /* Adjust margin */
+            font-family: monospace;
+            font-weight: bold;
+            font-size: 0.9rem; /* Adjust font size */
+        }
+        .arrow {
+            color: #4facfe;
+            font-size: 1.2rem; /* Adjust size */
+            margin: 0 0.6rem; /* Adjust margin */
+        }
+
+        /* Mermaid Container */
+        .mermaid-container {
+            background: rgba(26, 32, 44, 0.4);
+            border-radius: 8px;
+            padding: 1rem; /* Adjust padding */
+            height: auto; /* Height adapts to content */
+            min-height: 250px; /* Minimum height */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: auto; /* Add scroll for wide diagrams */
+        }
+         .mermaid svg {
+             max-width: 100%; /* Ensure SVG doesn't overflow its container */
+             height: auto;
+         }
+
+
+        /* Media Queries */
+        @media (max-width: 768px) {
+            .slide-container {
+                width: 95%;
+                padding: 1rem;
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+            .grid-container {
+                grid-template-columns: 1fr; /* Single column layout */
+                gap: 1rem;
+            }
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 1.5rem;
+            }
+            h2 {
+                font-size: 1.3rem;
+                margin-bottom: 0.8rem;
+            }
+            h3 {
+                font-size: 1rem;
+                margin-bottom: 0.4rem;
+            }
+            p {
+                font-size: 0.85rem;
+            }
+             .text-sm {
+                font-size: 0.75rem;
+            }
+            .feature-card {
+                padding: 0.8rem;
+                margin-bottom: 0.8rem;
+            }
+             .step-card {
+                padding: 0.6rem 1rem;
+                margin-bottom: 0.6rem;
+                font-size: 0.8rem;
+             }
+             .step-number {
+                width: 1.4rem;
+                height: 1.4rem;
+                line-height: 1.4rem;
+                font-size: 0.7rem;
+                margin-right: 0.4rem;
+             }
+            .presenter-badge {
+                bottom: 1rem;
+                right: 1rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.7rem;
+            }
+            .presenter-badge .icon {
+                width: 16px;
+                height: 16px;
+            }
+            .section-number {
+                width: 2rem;
+                height: 2rem;
+                font-size: 1rem;
+                top: 1rem;
+                left: 1rem;
+            }
+            .key-box {
+                padding: 0.3rem 0.6rem;
+                margin: 0 0.3rem;
+                font-size: 0.8rem;
+            }
+             .arrow {
+                font-size: 1rem;
+                margin: 0 0.4rem;
+            }
+             .mermaid-container {
+                 padding: 0.8rem;
+                 min-height: 200px;
+             }
+             .mermaid svg {
+                  max-width: none; /* Allow horizontal scroll */
+             }
+             .grid-container > div > div:last-child .feature-card { /* Adjust margin for the last card in stacked layout */
+                 margin-bottom: 0;
+             }
+
+
+        }
+
+        @media (max-width: 500px) {
+             h1 {
+                font-size: 1.75rem;
+             }
+             h2 {
+                font-size: 1.2rem;
+             }
+             h3 {
+                font-size: 1rem;
+             }
+             p {
+                font-size: 0.8rem;
+             }
+             .text-sm {
+                font-size: 0.7rem;
+            }
+             .text-xs {
+                font-size: 0.6rem;
+            }
+            .presenter-badge {
+                bottom: 0.5rem;
+                right: 0.5rem;
+                padding: 0.3rem 0.6rem;
+                font-size: 0.6rem;
+            }
+             .presenter-badge .icon {
+                width: 14px;
+                height: 14px;
+            }
+             .section-number {
+                width: 1.5rem;
+                height: 1.5rem;
+                font-size: 0.8rem;
+                top: 0.8rem;
+                left: 0.8rem;
+            }
+            .key-box {
+                padding: 0.2rem 0.4rem;
+                font-size: 0.7rem;
+            }
+             .arrow {
+                font-size: 0.9rem;
+            }
+            .mermaid-container {
+                 padding: 0.5rem;
+                 min-height: 180px;
+             }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container p-16 relative">
+        <div class="section-number">2</div>
+
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold">
+                <span class="title-accent">Funcionamiento Básico del ECC</span>
+            </h1>
+            <p class="text-blue-200 mt-2 text-xl">Generación de claves y protocolo de intercambio ECDH</p>
+        </div>
+
+        <div class="grid-container">
+            <div>
+                <div class="mb-5">
+                    <h2 class="text-2xl font-semibold mb-3 text-blue-200">
+                        <span class="icon icon-key"></span>Generación de Claves
+                    </h2>
+
+                    <div class="feature-card">
+                        <div class="key-sequence">
+                            <span class="key-box">k</span>
+                            <span class="arrow">→</span>
+                            <span class="key-box">Q = k·G</span>
+                        </div>
+
+                        <div class="step-card mt-4">
+                            <span class="step-number">1</span>
+                            <span class="math-highlight">Clave privada (k):</span> Número entero aleatorio
+                            <span class="text-sm">(256 bits)</span>
+                        </div>
+
+                        <div class="step-card">
+                            <span class="step-number">2</span>
+                            <span class="math-highlight">Punto base (G):</span> Punto de la curva seleccionada, conocido públicamente
+                        </div>
+
+                        <div class="step-card">
+                            <span class="step-number">3</span>
+                            <span class="math-highlight">Clave pública (Q):</span> Resultado de multiplicar k·G
+                        </div>
+
+                        <p class="text-sm mt-3">
+                            <span class="math-highlight">Seguridad:</span> Obtener k a partir de Q y G es el problema del logaritmo discreto elíptico
+                        </p>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-semibold mb-3 text-blue-200">
+                        <span class="icon icon-cog"></span>Selección de Curva
+                    </h2>
+
+                    <div class="feature-card">
+                        <h3 class="text-lg font-medium text-blue-200 mb-2">Curvas estandarizadas</h3>
+
+                        <div class="grid-container" style="grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.5rem;">
+                            <div class="step-card">
+                                <p><span class="math-highlight">NIST P-256</span></p>
+                                <p class="text-sm">Seguridad de 128 bits</p>
+                            </div>
+
+                            <div class="step-card">
+                                <p><span class="math-highlight">Curve25519</span></p>
+                                <p class="text-sm">Alta eficiencia y seguridad</p>
+                            </div>
+
+                            <div class="step-card">
+                                <p><span class="math-highlight">NIST P-384</span></p>
+                                <p class="text-sm">Seguridad de 192 bits</p>
+                            </div>
+
+                            <div class="step-card">
+                                <p><span class="math-highlight">secp256k1</span></p>
+                                <p class="text-sm">Usada en Bitcoin</p>
+                            </div>
+                        </div>
+
+                        <p class="text-sm mt-3">La elección depende del nivel de seguridad requerido, rendimiento y compatibilidad.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-semibold mb-3 text-blue-200">
+                    <span class="icon icon-exchange"></span>Algoritmo ECDH
+                </h2>
+
+                <div class="feature-card mb-4">
+                    <h3 class="text-lg font-medium text-blue-200 mb-2">Elliptic Curve Diffie-Hellman</h3>
+
+                    <p class="text-sm mb-3">Protocolo de acuerdo de claves que permite a dos partes establecer una clave secreta compartida sin transmitirla explícitamente.</p>
+                </div>
+
+                <div class="mermaid-container">
+                    <div class="mermaid">
+                        graph TD
+                        subgraph "Alice"
+                            A1[Genera clave privada a]
+                            A2[Calcula clave pública A = a·G]
+                            A4[Calcula secreto compartido S = a·B]
+                        end
+
+                        subgraph "Bob"
+                            B1[Genera clave privada b]
+                            B2[Calcula clave pública B = b·G]
+                            B4[Calcula secreto compartido S = b·A]
+                        end
+
+                        A1 --> A2
+                        B1 --> B2
+                        A2 --> |"Transmite A"| B4
+                        B2 --> |"Transmite B"| A4
+
+                        style A1 fill:#1e3a8a,color:#fff
+                        style A2 fill:#1e3a8a,color:#fff
+                        style A4 fill:#1e3a8a,color:#fff
+                        style B1 fill:#065f46,color:#fff
+                        style B2 fill:#065f46,color:#fff
+                        style B4 fill:#065f46,color:#fff
+                    </div>
+                </div>
+
+                <div class="feature-card mt-4">
+                    <h3 class="text-lg font-medium text-blue-200 mb-2">Propiedades de seguridad</h3>
+
+                    <div class="step-card">
+                        <p><span class="math-highlight">Secreto perfecto:</span> S = a·B = b·A = a·b·G</p>
+                    </div>
+
+                    <div class="step-card">
+                        <p><span class="math-highlight">Confidencialidad adelantada:</span> Compromiso de clave privada no revela sesiones anteriores</p>
+                    </div>
+
+                    <div class="step-card">
+                        <p><span class="math-highlight">No repudio:</span> Con autenticación adicional, los participantes no pueden negar su participación</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="presenter-badge">
+            <span class="icon icon-user"></span>
+            <span>Presentado por: <strong>Raúl Esquivel</strong></span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            mermaid.initialize({
+                theme: 'dark',
+                securityLevel: 'loose',
+                startOnLoad: true,
+                flowchart: {
+                    useMaxWidth: false, // Let the container handle width
+                    htmlLabels: true,
+                    curve: 'basis'
+                },
+                 themeVariables: { /* Match theme colors */
+                    primaryColor: '#1e3a8a', /* Alice blue-800 */
+                    primaryTextColor: '#fff',
+                    secondaryColor: '#065f46', /* Bob green-800 */
+                    secondaryTextColor: '#fff',
+                    tertiaryColor: '#a7c9d9', /* Blue-300 for arrows/labels */
+                    lineColor: '#a7c9d9'
+                 }
+            });
+        });
+    </script>
+</body>
+</html>

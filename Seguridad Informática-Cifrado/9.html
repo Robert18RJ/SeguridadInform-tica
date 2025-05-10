@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Casos de Estudio: Implementación Híbrida ECC+AES</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(120deg, #1a2a6c, #2a4365);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Added to prevent horizontal scroll */
+        }
+        .slide-container {
+            width: 95%; /* Adjust width */
+            max-width: 1280px; /* Max width */
+            min-height: auto; /* Height adapts to content */
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            margin: 20px auto; /* Center container */
+            padding: 1rem; /* Adjust padding */
+        }
+        .title-accent {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 1rem; /* Adjust padding */
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            height: auto; /* Height adapts to content */
+            border-left: 4px solid #4facfe;
+            transition: transform 0.3s ease;
+            margin-bottom: 1rem; /* Adjust margin */
+        }
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+        .presenter-badge {
+            position: absolute;
+            bottom: 1.5rem; /* Adjust position */
+            right: 1.5rem; /* Adjust position */
+            background: rgba(79, 172, 254, 0.2);
+            padding: 0.6rem 1.2rem; /* Adjust padding */
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(79, 172, 254, 0.5);
+            font-size: 0.8rem; /* Adjust font size */
+            z-index: 20; /* Ensure it's on top */
+        }
+         .presenter-badge span { /* Adjust span inside badge */
+            margin-left: 0.3rem; /* Adjust margin */
+        }
+        .section-number {
+            position: absolute;
+            top: 1.5rem; /* Adjust position */
+            left: 1.5rem; /* Adjust position */
+            background: #4facfe;
+            width: 2.5rem; /* Adjust size */
+            height: 2.5rem; /* Adjust size */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.2rem; /* Adjust font size */
+            box-shadow: 0 0 10px rgba(79, 172, 254, 0.6);
+        }
+        .grid-container { /* Used for the code example section */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
+            gap: 1.5rem; /* Adjust gap */
+        }
+        .grid-3 { /* Used for case studies */
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); /* Responsive 3 columns */
+            gap: 1rem; /* Adjust gap */
+            margin-bottom: 1rem; /* Adjust margin */
+        }
+        .highlight {
+            color: #4facfe;
+            font-weight: 600;
+        }
+        /* Custom Icons */
+         .icon {
+            display: inline-block;
+            width: 1.2rem; /* Adjust size */
+            height: 1.2rem; /* Adjust size */
+            margin-right: 0.5rem; /* Adjust margin */
+            position: relative;
+            top: 0.2rem; /* Adjust alignment */
+        }
+        .icon-globe {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%234facfe' d='M352 256c0 22.2-1.2 43.6-3.3 64H163.3c-2.2-20.4-3.3-41.8-3.3-64s1.2-43.6 3.3-64H348.7c2.2 20.4 3.3 41.8 3.3 64zm28.8-64H503.9c5.3 20.5 8.1 41.9 8.1 64s-2.8 43.5-8.1 64H380.8c2.1-20.6 3.2-42 3.2-64s-1.1-43.4-3.2-64zm112.6-32H376.7c-10-63.9-29.8-117.4-55.3-151.6c78.3 20.7 142 77.5 171.9 151.6zm-149.1 0H167.7c6.1-36.4 15.5-68.6 27-94.7c10.5-23.6 22.2-40.7 33.5-51.5C239.4 3.2 248.7 0 256 0s16.6 3.2 27.8 13.8c11.3 10.8 23 27.9 33.5 51.5c11.6 26 20.9 58.2 27 94.7zm-209 0H18.6C48.6 85.9 112.2 29.1 190.6 8.4C165.1 42.6 145.3 96.1 135.3 160zM8.1 192C2.8 212.5 0 233.9 0 256s2.8 43.5 8.1 64H131.2c-2.1-20.6-3.2-42-3.2-64s1.1-43.4 3.2-64zM194.7 446.6c-11.6-26-20.9-58.2-27-94.6H344.3c-6.1 36.4-15.5 68.6-27 94.6c-10.5 23.6-22.2 40.7-33.5 51.5C272.6 508.8 263.3 512 256 512s-16.6-3.2-27.8-13.8c-11.3-10.8-23-27.9-33.5-51.5zM135.3 352c10 63.9 29.8 117.4 55.3 151.6C112.2 482.9 48.6 426.1 18.6 352H135.3zm358.1 0c-30 74.1-93.6 130.9-171.9 151.6c25.5-34.2 45.2-87.7 55.3-151.6H493.4z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .icon-comment {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cpath fill='%234facfe' d='M256 448c141.4 0 256-93.1 256-208S397.4 32 256 32S0 125.1 0 240c0 45.1 17.7 86.8 47.7 120.9c-1.9 24.5-11.4 46.3-21.4 62.9c-5.5 9.2-11.1 16.6-15.2 21.6c-2.1 2.5-3.7 4.4-4.9 5.7c-.6 .6-1 1.1-1.3 1.4l-.3 .3 0 0 0 0 0 0 0 0c-4.6 4.6-5.9 11.4-3.4 17.4c2.5 6 8.3 9.9 14.8 9.9c28.7 0 57.6-8.9 81.6-19.3c22.9-10 42.4-21.9 54.3-30.6c31.8 11.5 67 17.9 104.1 17.9zM128 272c-17.7 0-32-14.3-32-32s14.3-32 32-32s32 14.3 32 32s-14.3 32-32 32zm128 0c-17.7 0-32-14.3-32-32s14.3-32 32-32s32 14.3 32 32s-14.3 32-32 32zm160-32c0 17.7-14.3 32-32 32s-32-14.3-32-32s14.3-32 32-32s32 14.3 32 32z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .icon-card {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'%3E%3Cpath fill='%234facfe' d='M64 32C28.7 32 0 60.7 0 96v32H576V96c0-35.3-28.7-64-64-64H64zM576 224H0V416c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V224zM112 352h64c8.8 0 16 7.2 16 16s-7.2 16-16 16H112c-8.8 0-16-7.2-16-16s7.2-16 16-16zm112 16c0-8.8 7.2-16 16-16H368c8.8 0 16 7.2 16 16s-7.2 16-16 16H240c-8.8 0-16-7.2-16-16z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .icon-code {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 640 512'%3E%3Cpath fill='%234facfe' d='M392.8 1.2c-17-4.9-34.7 5-39.6 22l-128 448c-4.9 17 5 34.7 22 39.6s34.7-5 39.6-22l128-448c4.9-17-5-34.7-22-39.6zm80.6 120.1c-12.5 12.5-12.5 32.8 0 45.3L562.7 256l-89.4 89.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l112-112c12.5-12.5 12.5-32.8 0-45.3l-112-112c-12.5-12.5-32.8-12.5-45.3 0zm-306.7 0c-12.5-12.5-32.8-12.5-45.3 0l-112 112c-12.5 12.5-12.5 32.8 0 45.3l112 112c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256l89.4-89.4c12.5-12.5 12.5-32.8 0-45.3z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .icon-user {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 448 512'%3E%3Cpath fill='#fff' d='M224 256c70.7 0 128-57.3 128-128S294.7 0 224 0 96 57.3 96 128s57.3 128 128 128zm89.6 32h-16.7c-22.2 10.2-46.9 16-72.9 16s-50.6-5.8-72.9-16h-16.7C60.2 288 0 348.2 0 422.4V464c0 26.5 21.5 48 48 48h352c26.5 0 48-21.5 48-48v-41.6c0-74.2-60.2-134.4-134.4-134.4z'/%3E%3C/svg%3E") no-repeat center center;
+            background-size: contain;
+        }
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.6rem; /* Adjust gap */
+            margin-top: 0.8rem; /* Adjust margin */
+             flex-wrap: wrap; /* Allow items to wrap */
+        }
+        .logo {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.4rem 0.8rem; /* Adjust padding */
+            display: flex;
+            align-items: center;
+            font-weight: 600;
+            font-size: 0.8rem; /* Adjust font size */
+        }
+        .case-header {
+            color: #93c5fd; /* text-blue-300 equivalent */
+            font-size: 1.1rem; /* Adjust font size */
+            font-weight: 600;
+            margin-bottom: 0.6rem; /* Adjust margin */
+            display: flex;
+            align-items: center;
+        }
+        .code-block {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+            padding: 0.8rem; /* Adjust padding */
+            font-family: 'Fira Code', monospace;
+            font-size: 0.8rem; /* Adjust font size */
+            color: #e2e8f0;
+            white-space: pre;
+            overflow-x: auto; /* Ensure horizontal scroll */
+            overflow-y: auto; /* Ensure vertical scroll */
+            max-height: 300px; /* Limit height */
+            border: 1px solid rgba(79, 172, 254, 0.3);
+        }
+        .comment { color: #94a3b8; }
+        .keyword { color: #4facfe; font-weight: 500; }
+        .string { color: #4ade80; }
+        .function { color: #f59e0b; }
+        .variable { color: #f87171; }
+        .feature-list {
+            padding-left: 0.6rem; /* Adjust padding */
+            margin: 0.5rem 0; /* Adjust margin */
+            list-style-type: none;
+        }
+        .feature-list li {
+            position: relative;
+            padding-left: 1.2rem; /* Adjust padding */
+            margin-bottom: 0.5rem; /* Adjust margin */
+            font-size: 0.9rem; /* Adjust font size */
+        }
+        .feature-list li:before {
+            content: "•";
+            color: #4facfe;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+             font-size: 1rem; /* Adjust bullet size */
+             line-height: 1; /* Ensure consistent line height */
+        }
+
+        /* Text Sizes and Margins */
+        h1 {
+            font-size: 2.5rem; /* Adjust title size */
+            font-weight: bold;
+            margin-bottom: 1.5rem; /* Adjust margin */
+        }
+         .subtitle { /* Style for the specific subtitle */
+             color: #93c5fd;
+             margin-top: 0.6rem; /* Adjust margin */
+             font-size: 1.1rem; /* Adjust font size */
+         }
+        h2 {
+             font-size: 1.5rem; /* Adjust section title size */
+             font-weight: 600;
+             margin-bottom: 1rem; /* Adjust margin */
+             color: #93c5fd; /* text-blue-300 equivalent */
+        }
+
+        /* General adjustments for consistency */
+        p { font-size: 0.9rem; }
+        .mb-6 { margin-bottom: 1.2rem; }
+        .mb-3 { margin-bottom: 0.8rem; }
+        .mt-4 { margin-top: 1rem; }
+
+
+        /* Media Queries */
+        @media (max-width: 1024px) { /* Adjust grid-3 for slightly smaller screens */
+             .grid-3 {
+                 grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Allow 2 columns */
+                 gap: 0.8rem;
+             }
+             .feature-card {
+                 margin-bottom: 0.8rem;
+             }
+        }
+
+        @media (max-width: 768px) {
+            .slide-container {
+                width: 95%;
+                padding: 1rem;
+                margin-top: 1rem;
+                margin-bottom: 1rem;
+            }
+            .grid-container { /* Code example grid */
+                grid-template-columns: 1fr; /* Single column layout */
+                gap: 1rem;
+            }
+            .grid-3 { /* Case studies grid */
+                grid-template-columns: 1fr; /* Single column layout */
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 1.5rem;
+            }
+            .subtitle {
+                 font-size: 1rem;
+                 margin-top: 0.4rem;
+            }
+            h2 {
+                font-size: 1.3rem;
+                margin-bottom: 0.8rem;
+            }
+            .feature-card {
+                padding: 0.8rem;
+                margin-bottom: 0.8rem;
+            }
+             .case-header {
+                 font-size: 1rem;
+                 margin-bottom: 0.4rem;
+             }
+             .logo-container {
+                 gap: 0.4rem;
+                 margin-top: 0.6rem;
+             }
+             .logo {
+                 padding: 0.3rem 0.6rem;
+                 font-size: 0.7rem;
+             }
+             .feature-list {
+                 margin: 0.4rem 0;
+             }
+             .feature-list li {
+                 font-size: 0.8rem;
+                 padding-left: 1.1rem;
+                 margin-bottom: 0.4rem;
+             }
+             .feature-list li:before {
+                 font-size: 0.9rem;
+             }
+            .code-block {
+                font-size: 0.75rem;
+                padding: 0.6rem;
+                 max-height: 250px; /* Adjust max height */
+            }
+            .presenter-badge {
+                bottom: 1rem;
+                right: 1rem;
+                padding: 0.4rem 0.8rem;
+                font-size: 0.7rem;
+            }
+             .presenter-badge .icon {
+                width: 1rem;
+                height: 1rem;
+             }
+            .section-number {
+                width: 2rem;
+                height: 2rem;
+                font-size: 1rem;
+                top: 1rem;
+                left: 1rem;
+            }
+            /* Ensure the feature card spanning 2 columns still spans 1 on mobile */
+             .grid-container .feature-card {
+                 grid-column: span 1 / span 1 !important; /* Override span 2 on mobile */
+             }
+
+        }
+
+        @media (max-width: 500px) {
+             h1 {
+                font-size: 1.75rem;
+             }
+             .subtitle {
+                font-size: 0.9rem;
+             }
+             h2 {
+                font-size: 1.2rem;
+             }
+            .feature-card {
+                 padding: 0.6rem;
+                 margin-bottom: 0.6rem;
+             }
+             .case-header {
+                 font-size: 0.9rem;
+                 margin-bottom: 0.3rem;
+             }
+             .logo-container {
+                 gap: 0.3rem;
+                 margin-top: 0.4rem;
+             }
+             .logo {
+                 padding: 0.2rem 0.4rem;
+                 font-size: 0.6rem;
+             }
+             .feature-list li {
+                 font-size: 0.75rem;
+                 padding-left: 1rem;
+                 margin-bottom: 0.3rem;
+             }
+             .feature-list li:before {
+                 font-size: 0.8rem;
+             }
+            .code-block {
+                font-size: 0.7rem;
+                padding: 0.5rem;
+                 max-height: 200px; /* Further adjust max height */
+            }
+            .presenter-badge {
+                bottom: 0.5rem;
+                right: 0.5rem;
+                padding: 0.3rem 0.6rem;
+                font-size: 0.6rem;
+            }
+             .presenter-badge .icon {
+                width: 0.8rem;
+                height: 0.8rem;
+             }
+             .section-number {
+                width: 1.5rem;
+                height: 1.5rem;
+                font-size: 0.8rem;
+                top: 0.8rem;
+                left: 0.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container p-16 relative">
+        <div class="section-number">3</div>
+
+        <div class="text-center mb-6">
+            <h1 class="text-4xl font-bold">
+                <span class="title-accent">Casos de Estudio: Implementación Híbrida ECC+AES</span>
+            </h1>
+            <p class="subtitle">Ejemplos reales de aplicación en sistemas de comunicación seguros</p>
+        </div>
+
+        <div class="grid-3">
+            <div class="feature-card">
+                <div class="case-header">
+                    <span class="icon icon-globe"></span>TLS/SSL para HTTPS
+                </div>
+
+                <ul class="feature-list">
+                    <li>Uso de <span class="highlight">ECDHE</span> (Elliptic Curve Diffie-Hellman Ephemeral) para intercambio de claves</li>
+                    <li>Curvas populares: <span class="highlight">P-256, P-384, X25519</span></li>
+                    <li>Implementado en <span class="highlight">TLS 1.2 y 1.3</span></li>
+                    <li>Establece una clave de sesión AES para cifrar la comunicación por el canal seguro</li>
+                </ul>
+
+                <div class="logo-container">
+                    <div class="logo">
+                        <span>CloudFlare</span>
+                    </div>
+                    <div class="logo">
+                        <span>AWS</span>
+                    </div>
+                    <div class="logo">
+                        <span>Nginx</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="case-header">
+                    <span class="icon icon-comment"></span>Aplicaciones de Mensajería
+                </div>
+
+                <ul class="feature-list">
+                    <li><span class="highlight">WhatsApp:</span> Protocolo Signal basado en curvas X25519 y cifrado AES-256</li>
+                    <li><span class="highlight">Signal:</span> Double Ratchet con ECDH + AES-256-CBC para Forward Secrecy</li>
+                    <li><span class="highlight">Telegram:</span> MTProto 2.0 con cifrado híbrido para canales secretos</li>
+                    <li>Todas implementan PFS (Perfect Forward Secrecy) a través de claves efímeras</li>
+                </ul>
+
+                <div class="logo-container">
+                    <div class="logo">
+                        <span>WhatsApp</span>
+                    </div>
+                    <div class="logo">
+                        <span>Signal</span>
+                    </div>
+                    <div class="logo">
+                        <span>Telegram</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <div class="case-header">
+                    <span class="icon icon-card"></span>Tarjetas Inteligentes
+                </div>
+
+                <ul class="feature-list">
+                    <li>Implementación en <span class="highlight">tarjetas de pago EMV</span> (chip)</li>
+                    <li><span class="highlight">Pasaportes electrónicos</span> utilizan ECC para autenticación</li>
+                    <li><span class="highlight">Identidad digital</span> en tarjetas de identificación nacionales</li>
+                    <li>Combinación de ECDSA para firma y AES para almacenamiento cifrado</li>
+                </ul>
+
+                <div class="logo-container">
+                    <div class="logo">
+                        <span>VISA</span>
+                    </div>
+                    <div class="logo">
+                        <span>Mastercard</span>
+                    </div>
+                    <div class="logo">
+                        <span>ePassport</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <div class="feature-card" style="grid-column: span 2;">
+                <div class="case-header">
+                    <span class="icon icon-code"></span>Ejemplo de Implementación (Pseudocódigo)
+                </div>
+
+                <div class="code-block">
+<span class="comment">// Implementación básica de un esquema híbrido ECC+AES utilizando la biblioteca OpenSSL</span>
+<span class="keyword">function</span> <span class="function">encryptMessage</span>(<span class="variable">message</span>, <span class="variable">recipientPublicKey</span>) {
+    <span class="comment">// 1. Generar clave AES aleatoria para esta sesión</span>
+    <span class="variable">aesKey</span> = <span class="function">generateRandomBytes</span>(32); <span class="comment">// AES-256 necesita 32 bytes</span>
+
+    <span class="comment">// 2. Cifrar el mensaje con AES-GCM (proporciona autenticación)</span>
+    <span class="variable">iv</span> = <span class="function">generateRandomBytes</span>(12); <span class="comment">// Vector de inicialización para AES-GCM</span>
+    <span class="variable">encryptedMessage</span> = <span class="function">AES_GCM_Encrypt</span>(<span class="variable">message</span>, <span class="variable">aesKey</span>, <span class="variable">iv</span>);
+
+    <span class="comment">// 3. Crear par de claves ECC efímero</span>
+    (<span class="variable">ephemeralPrivateKey</span>, <span class="variable">ephemeralPublicKey</span>) = <span class="function">ECC_GenerateKeyPair</span>();
+
+    <span class="comment">// 4. Derivar secreto compartido usando ECDH</span>
+    <span class="variable">sharedSecret</span> = <span class="function">ECDH_ComputeSharedSecret</span>(<span class="variable">ephemeralPrivateKey</span>, <span class="variable">recipientPublicKey</span>);
+
+    <span class="comment">// 5. Derivar clave de encapsulamiento a partir del secreto compartido</span>
+    <span class="variable">kdf_output</span> = <span class="function">HKDF</span>(<span class="variable">sharedSecret</span>, <span class="string">"ECC-AES-KDF"</span>, 32);
+
+    <span class="comment">// 6. Cifrar la clave AES con la clave derivada</span>
+    <span class="variable">wrappingIv</span> = <span class="function">generateRandomBytes</span>(16);
+    <span class="variable">encryptedAesKey</span> = <span class="function">AES_CBC_Encrypt</span>(<span class="variable">aesKey</span>, <span class="variable">kdf_output</span>, <span class="variable">wrappingIv</span>);
+
+    <span class="comment">// 7. Empaquetar datos para enviar</span>
+    <span class="keyword">return</span> {
+        <span class="string">"ephemeralPublicKey"</span>: <span class="variable">ephemeralPublicKey</span>,
+        <span class="string">"encryptedAesKey"</span>: <span class="variable">encryptedAesKey</span>,
+        <span class="string">"wrappingIv"</span>: <span class="variable">wrappingIv</span>,
+        <span class="string">"iv"</span>: <span class="variable">iv</span>,
+        <span class="string">"encryptedMessage"</span>: <span class="variable">encryptedMessage</span>,
+        <span class="string">"algorithm"</span>: <span class="string">"ECDH-P256-AES256-GCM"</span>
+    };
+}
+
+<span class="comment">// Ejemplo de uso práctico</span>
+<span class="keyword">try</span> {
+    <span class="variable">curve</span> = <span class="string">"P-256"</span>; <span class="comment">// O "X25519" para mejor rendimiento</span>
+    <span class="variable">recipientPublicKey</span> = <span class="function">loadEccPublicKey</span>(<span class="variable">recipientCertificate</span>);
+    <span class="variable">payload</span> = <span class="function">encryptMessage</span>(<span class="variable">sensitiveData</span>, <span class="variable">recipientPublicKey</span>);
+    <span class="variable">securePayload</span> = <span class="function">JSON_stringify</span>(<span class="variable">payload</span>);
+    <span class="comment">// Enviar securePayload al destinatario</span>
+} <span class="keyword">catch</span> (error) {
+    <span class="function">logError</span>(<span class="string">"Error en el proceso de cifrado híbrido: "</span> + <span class="variable">error</span>.message);
+}</div>
+            </div>
+        </div>
+
+        <div class="presenter-badge">
+            <span class="icon icon-user"></span>
+            <span>Presentado por: <strong>Alexis Lihuisi</strong></span>
+        </div>
+    </div>
+</body>
+</html>

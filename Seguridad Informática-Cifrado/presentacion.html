@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Presentación</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      overflow-y: auto; /* Scroll vertical */
+    }
+
+    .contenedor {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .contenido {
+      flex-grow: 1;
+      padding: 1em;
+    }
+
+    iframe {
+      width: 100%;
+      height: 87vh;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .navegacion {
+      text-align: center;
+      padding: 1em;
+    }
+
+    .navegacion button {
+      background-color: #444;
+      color: white;
+      border: none;
+      padding: 0.8em 1.5em;
+      margin: 0.3em;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      border-radius: 8px;
+    }
+
+    .navegacion button:hover {
+      background-color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="contenedor">
+    <div class="contenido">
+      <iframe id="iframeContenido" src="1.html"></iframe>
+    </div>
+
+    <div class="navegacion">
+      <button onclick="anterior()">Anterior</button>
+      <button onclick="siguiente()">Siguiente</button>
+    </div>
+  </div>
+
+  <script>
+    const paginas = [
+      "1.html", "2.html", "3.html", "4.html", "5.html",
+      "6.html", "7.html", "8.html", "9.html", "10.html",
+      "11.html", "12.html", "13.html", "14.html"
+    ];
+    let indiceActual = 0;
+
+    function cargarPagina() {
+      document.getElementById("iframeContenido").src = paginas[indiceActual];
+    }
+
+    function anterior() {
+      if (indiceActual > 0) {
+        indiceActual--;
+        cargarPagina();
+      }
+    }
+
+    function siguiente() {
+      if (indiceActual < paginas.length - 1) {
+        indiceActual++;
+        cargarPagina();
+      }
+    }
+  </script>
+</body>
+</html>

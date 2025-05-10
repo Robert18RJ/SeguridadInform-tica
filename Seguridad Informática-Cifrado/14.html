@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preguntas y Respuestas</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(120deg, #1a2a6c, #2a4365);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            /* Eliminamos overflow: hidden; del body para permitir scroll si el contenido lo requiere */
+            /* overflow: hidden; */
+        }
+        .slide-container {
+            width: 1280px;
+            min-height: 720px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            /* Añadimos margin: 0 auto; para centrar horizontalmente */
+            margin: 0 auto;
+            /* Añadimos padding para que el contenido no toque los bordes en pantallas más pequeñas que 1280px */
+            padding: 20px; /* Puedes ajustar este valor */
+            box-sizing: border-box; /* Incluye padding en el ancho total */
+        }
+         /* Si el body tiene min-height: 100vh y display: flex (como en el ejemplo anterior),
+            y quieres centrar verticalmente, estos estilos en el body funcionan.
+            Pero si solo quieres centrar horizontalmente y permitir scroll, los estilos del body
+            podrían ser más simples: */
+        /* body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(120deg, #1a2a6c, #2a4365);
+            color: #fff;
+            margin: 0;
+            padding: 20px; El padding en el body ayuda a evitar que el slide toque los bordes
+        } */
+
+
+        .title-accent {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            font-size: 4.5rem;
+            margin-bottom: 2.5rem;
+            text-align: center;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .subtitle {
+            font-size: 1.8rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        .presenter-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 0.5rem;
+            gap: 25px;
+        }
+        .presenter {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 0.8rem 1.5rem;
+            border: 1px solid rgba(79, 172, 254, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        .presenter:hover {
+            transform: translateY(-5px);
+            background: rgba(79, 172, 254, 0.25);
+            border-color: rgba(79, 172, 254, 0.7);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        .presenter-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(79, 172, 254, 0.3);
+            border-radius: 50%;
+            margin-right: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+            font-weight: 700;
+            box-shadow: 0 0 10px rgba(79, 172, 254, 0.5);
+        }
+        .presenter-name {
+            font-weight: 600;
+            font-size: 1.2rem;
+            letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        .visual-container {
+            position: relative;
+            width: 500px;
+            height: 300px;
+            margin-bottom: 10px;
+            /* Aseguramos que el visual-container también esté centrado si su ancho es menor que el padre */
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .elliptic-curve {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 8px rgba(79, 172, 254, 0.3));
+        }
+        .curve-title {
+            position: absolute;
+            top: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 3px 10px;
+            border-radius: 15px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        .equation {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            background: rgba(0, 0, 0, 0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-style: italic;
+        }
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: #4facfe;
+            box-shadow: 0 0 15px #4facfe, 0 0 25px #4facfe;
+            animation: float 8s infinite ease-in-out;
+        }
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) translateX(0);
+            }
+            25% {
+                transform: translateY(-15px) translateX(10px);
+            }
+            50% {
+                transform: translateY(5px) translateX(-10px);
+            }
+            75% {
+                transform: translateY(10px) translateX(15px);
+            }
+        }
+        .decoration-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.15;
+            background: radial-gradient(circle, rgba(79, 172, 254, 0.9) 0%, rgba(0, 242, 254, 0) 70%);
+        }
+         /* Mantenemos las posiciones y tamaños originales ya que el objetivo es solo centrar el bloque */
+        .decoration-circle:nth-child(1) { width: 500px; height: 500px; top: -150px; right: -100px;}
+        .decoration-circle:nth-child(2) { width: 400px; height: 400px; bottom: -100px; left: -100px;}
+        .decoration-circle:nth-child(3) { width: 300px; height: 300px; top: 50%; right: 10%; transform: translateY(-50%);}
+
+        .footnote {
+            position: absolute;
+            bottom: 5px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            padding: 0px;
+            margin: 0px; 
+        }
+        .point-label {
+            font-weight: bold;
+            filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+        }
+        .glow {
+            filter: drop-shadow(0 0 5px rgba(79, 172, 254, 0.8));
+        }
+
+        /* Opcional: Añadir un padding al body para que no toque los bordes en ventanas estrechas */
+        /* Puedes descomentar este bloque si quieres añadir espacio alrededor del contenedor */
+        /* @media (max-width: 1300px) {
+            body {
+                padding: 20px;
+                box-sizing: border-box;
+            }
+        } */
+
+
+    </style>
+</head>
+<body>
+    <div class="slide-container p-16 relative">
+        <div class="decoration-circle" style="width: 500px; height: 500px; top: -150px; right: -100px;"></div>
+        <div class="decoration-circle" style="width: 400px; height: 400px; bottom: -100px; left: -100px;"></div>
+        <div class="decoration-circle" style="width: 300px; height: 300px; top: 50%; right: 10%; transform: translateY(-50%);"></div>
+
+        <div class="particles">
+            <div class="particle" style="width: 6px; height: 6px; top: 20%; left: 15%; animation-delay: 0s;"></div>
+            <div class="particle" style="width: 4px; height: 4px; top: 35%; left: 85%; animation-delay: 0.5s;"></div>
+            <div class="particle" style="width: 5px; height: 5px; top: 70%; left: 25%; animation-delay: 1s;"></div>
+            <div class="particle" style="width: 7px; height: 7px; top: 50%; left: 65%; animation-delay: 1.5s;"></div>
+            <div class="particle" style="width: 5px; height: 5px; top: 80%; left: 80%; animation-delay: 2s;"></div>
+            <div class="particle" style="width: 6px; height: 6px; top: 15%; left: 60%; animation-delay: 2.5s;"></div>
+            <div class="particle" style="width: 4px; height: 4px; top: 40%; left: 30%; animation-delay: 3s;"></div>
+            <div class="particle" style="width: 5px; height: 5px; top: 25%; left: 75%; animation-delay: 3.5s;"></div>
+            <div class="particle" style="width: 6px; height: 6px; top: 65%; left: 45%; animation-delay: 4s;"></div>
+        </div>
+
+        <h1 class="title-accent">Preguntas y Respuestas</h1>
+
+        <div class="visual-container">
+            <div class="curve-title">Curva Elíptica y Operación de Suma de Puntos</div>
+            <svg class="elliptic-curve" viewBox="0 0 500 300" xmlns="http://www.w3.org/2000/svg">
+                <pattern id="smallGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                    <path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="0.5"/>
+                </pattern>
+                <rect width="100%" height="100%" fill="url(#smallGrid)" />
+
+                <line x1="50" y1="150" x2="450" y2="150" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" />
+                <line x1="250" y1="30" x2="250" y2="270" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" />
+
+                <text x="445" y="170" fill="rgba(255,255,255,0.7)" font-size="14">x</text>
+                <text x="260" y="40" fill="rgba(255,255,255,0.7)" font-size="14">y</text>
+
+                <path d="M 80,240 Q 120,190 160,150 Q 200,110 240,80 Q 280,50 320,70 Q 360,90 400,150 Q 430,190 450,230"
+                      fill="none" stroke="url(#curve-gradient)" stroke-width="4" class="glow" />
+
+                <circle cx="130" cy="180" r="8" fill="#4facfe" stroke="#ffffff" stroke-width="2" class="glow" />
+                <circle cx="280" cy="70" r="8" fill="#4facfe" stroke="#ffffff" stroke-width="2" class="glow" />
+                <circle cx="380" cy="170" r="8" fill="#FF5C8D" stroke="#ffffff" stroke-width="2" class="glow" />
+
+                <line x1="130" y1="180" x2="280" y2="70" stroke="rgba(255, 255, 255, 0.6)" stroke-width="2" stroke-dasharray="6,4" />
+                <line x1="280" y1="70" x2="380" y2="170" stroke="rgba(255, 255, 255, 0.6)" stroke-width="2" stroke-dasharray="6,4" />
+
+                <text x="118" y="200" fill="#ffffff" font-size="16" font-weight="bold" class="point-label">P</text>
+                <text x="290" y="65" fill="#ffffff" font-size="16" font-weight="bold" class="point-label">Q</text>
+                <text x="390" y="175" fill="#ffffff" font-size="16" font-weight="bold" class="point-label">P+Q</text>
+
+                <g transform="translate(140, 200) scale(0.7)">
+                    <path d="M20,0 C9,0 0,9 0,20 L0,40 L10,40 L10,20 C10,14.5 14.5,10 20,10 C25.5,10 30,14.5 30,20 L30,40 L40,40 L40,20 C40,9 31,0 20,0 Z" fill="#4facfe" class="glow" />
+                    <rect x="5" y="40" width="30" height="20" rx="2" fill="#4facfe" class="glow" />
+                </g>
+
+                <g transform="translate(320, 90) scale(0.7)">
+                    <path d="M20,0 C9,0 0,9 0,20 L0,40 L10,40 L10,20 C10,14.5 14.5,10 20,10 C25.5,10 30,14.5 30,20 L30,40 L40,40 L40,20 C40,9 31,0 20,0 Z" fill="#4facfe" class="glow" />
+                    <rect x="5" y="40" width="30" height="20" rx="2" fill="#4facfe" class="glow" />
+                </g>
+
+                <defs>
+                    <linearGradient id="curve-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+                        <stop offset="50%" style="stop-color:#00f2fe;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#4facfe;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+            </svg>
+            <div class="equation">y² = x³ - 3x + 3</div>
+        </div>
+
+        <div class="subtitle">
+            ¿Alguna duda sobre las curvas elípticas<br>o su aplicación en criptografía?
+        </div>
+
+        <div class="presenter-container">
+            <div class="presenter">
+                <div class="presenter-icon">RD</div>
+                <div class="presenter-name">Robert Dueñas</div>
+            </div>
+            <div class="presenter">
+                <div class="presenter-icon">RE</div>
+                <div class="presenter-name">Raúl Esquivel</div>
+            </div>
+            <div class="presenter">
+                <div class="presenter-icon">AL</div>
+                <div class="presenter-name">Alexis Lihuisi</div>
+            </div>
+            <div class="presenter">
+                <div class="presenter-icon">LH</div>
+                <div class="presenter-name">Luiz Huayta</div>
+            </div>
+        </div>
+
+        <div class="footnote">
+            Universidad Católica de Santa María - Ingeniería de Sistemas
+        </div>
+    </div>
+</body>
+</html>

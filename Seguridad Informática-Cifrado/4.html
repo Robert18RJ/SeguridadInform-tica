@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operaciones Matemáticas en Curvas Elípticas</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(120deg, #1a2a6c, #2a4365);
+            color: #fff;
+            margin: 0;
+            padding: 0;
+        }
+        .slide-container {
+            width: 95%; /* Ajuste para ocupar un mayor ancho en pantallas */
+            max-width: 1280px; /* Mantenemos el ancho máximo */
+            min-height: auto; /* Ajuste para que la altura se adapte al contenido */
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            margin: 20px auto; /* Centrado y margen superior/inferior */
+            padding: 1rem; /* Reducimos el padding para mejor manejo en pantallas pequeñas */
+        }
+        .title-accent {
+            background: linear-gradient(90deg, #4facfe 0%, #00f2fe 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        .formula {
+            font-size: 1.2rem; /* Reducimos el tamaño de la fórmula para mejor ajuste */
+            text-align: center;
+            margin: 0.8rem 0; /* Reducimos márgenes */
+            font-family: "Times New Roman", Times, serif;
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 0.8rem; /* Reducimos el padding */
+            backdrop-filter: blur(5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            height: auto; /* Ajuste para que la altura se adapte al contenido */
+            border-left: 4px solid #4facfe;
+            transition: transform 0.3s ease;
+            margin-bottom: 0.75rem; /* Añadimos un poco de margen inferior */
+        }
+        .feature-card:hover {
+            transform: translateY(-3px); /* Reducimos el efecto hover */
+        }
+        .chart-container {
+            position: relative;
+            height: 200px; /* Reducimos la altura inicial del gráfico */
+            background: rgba(26, 32, 44, 0.4);
+            border-radius: 8px;
+            padding: 0.5rem; /* Reducimos el padding del gráfico */
+            margin-bottom: 0.75rem; /* Añadimos un poco de margen inferior */
+        }
+        .presenter-badge {
+            position: absolute;
+            bottom: 1rem; /* Reducimos la distancia desde abajo */
+            right: 1rem; /* Reducimos la distancia desde la derecha */
+            background: rgba(79, 172, 254, 0.2);
+            padding: 0.4rem 0.8rem; /* Reducimos el padding */
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            border: 1px solid rgba(79, 172, 254, 0.5);
+            font-size: 0.7rem; /* Reducimos el tamaño de la fuente */
+            z-index: 20; /* Aseguramos que esté por encima de otros elementos */
+        }
+        .section-number {
+            position: absolute;
+            top: 1rem; /* Reducimos la distancia desde arriba */
+            left: 1rem; /* Reducimos la distancia desde la izquierda */
+            background: #4facfe;
+            width: 2.2rem; /* Reducimos el ancho */
+            height: 2.2rem; /* Reducimos la altura */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem; /* Reducimos el tamaño de la fuente */
+            box-shadow: 0 0 10px rgba(79, 172, 254, 0.6);
+        }
+        .step-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 0.6rem 1rem; /* Reducimos el padding */
+            margin-bottom: 0.6rem; /* Reducimos el margen inferior */
+            border-left: 3px solid rgba(79, 172, 254, 0.5);
+            position: relative;
+        }
+        .step-number {
+            position: absolute;
+            left: -0.8rem; /* Ajustamos la posición */
+            top: 50%;
+            transform: translateY(-50%);
+            background: #4facfe;
+            width: 1.4rem; /* Reducimos el ancho */
+            height: 1.4rem; /* Reducimos la altura */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.7rem; /* Reducimos el tamaño de la fuente */
+        }
+        .math-highlight {
+            color: #4facfe;
+            font-weight: 600;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Ajuste para columnas responsivas */
+            gap: 1rem; /* Reducimos el espacio entre elementos de la grid */
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mb-8 {
+            margin-bottom: 1.2rem; /* Reducimos el margen inferior */
+        }
+        .text-4xl {
+            font-size: 2.2rem; /* Reducimos el tamaño del título */
+        }
+        .text-blue-200 {
+            color: #89bdd3;
+        }
+        .mt-2 {
+            margin-top: 0.3rem;
+        }
+        .text-xl {
+            font-size: 1rem; /* Reducimos el tamaño del subtítulo */
+        }
+        .mb-6 {
+            margin-bottom: 1rem; /* Reducimos el margen inferior */
+        }
+        .text-2xl {
+            font-size: 1.2rem; /* Reducimos el tamaño del título de sección */
+        }
+        .font-semibold {
+            font-weight: 600;
+        }
+        .mb-3 {
+            margin-bottom: 0.6rem; /* Reducimos el margen inferior */
+        }
+        .text-blue-300 {
+            color: #a7c9d9;
+        }
+        .mr-2 {
+            margin-right: 0.3rem;
+        }
+        .text-lg {
+            font-size: 0.9rem; /* Reducimos el tamaño del título de característica */
+        }
+        .font-medium {
+            font-weight: 500;
+        }
+        .mb-2 {
+            margin-bottom: 0.4rem; /* Reducimos el margen inferior */
+        }
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr); /* Mantenemos la disposición de dos columnas */
+            gap: 0.5rem; /* Reducimos el espacio entre columnas en este contexto */
+        }
+        .bg-blue-900 {
+            background-color: #1e3a8a; /* Un tono de azul más oscuro */
+        }
+        .bg-opacity-30 {
+            opacity: 0.9;
+        }
+        .rounded {
+            border-radius: 0.25rem;
+        }
+        .p-2 {
+            padding: 0.3rem; /* Reducimos el padding */
+        }
+        .text-sm {
+            font-size: 0.7rem; /* Reducimos el tamaño de la fuente */
+        }
+        .text-xs {
+            font-size: 0.6rem; /* Reducimos aún más el tamaño de la fuente */
+        }
+        .p-3 {
+            padding: 0.4rem; /* Reducimos el padding */
+        }
+        .mt-3 {
+            margin-top: 0.4rem; /* Reducimos el margen superior */
+        }
+        .mr-1 {
+            margin-right: 0.2rem; /* Reducimos el margen derecho */
+        }
+
+        /* Media Query para pantallas más pequeñas */
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr; /* Una sola columna en pantallas pequeñas */
+                gap: 1rem;
+            }
+            .text-4xl {
+                font-size: 1.8rem;
+            }
+            .text-xl {
+                font-size: 0.9rem;
+            }
+            .text-2xl {
+                font-size: 1.1rem;
+            }
+            .formula {
+                font-size: 1rem;
+            }
+            .chart-container {
+                height: 180px;
+            }
+            .presenter-badge {
+                bottom: 0.5rem;
+                right: 0.5rem;
+                padding: 0.2rem 0.5rem;
+                font-size: 0.6rem;
+            }
+            .section-number {
+                width: 1.8rem;
+                height: 1.8rem;
+                font-size: 0.9rem;
+                top: 0.5rem;
+                left: 0.5rem;
+            }
+            .step-card {
+                padding: 0.5rem 0.8rem;
+                margin-bottom: 0.5rem;
+            }
+            .step-number {
+                left: -0.6rem;
+                width: 1.2rem;
+                height: 1.2rem;
+                font-size: 0.6rem;
+            }
+            .grid-cols-2 {
+                grid-template-columns: 1fr; /* Una sola columna en pantallas pequeñas */
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="slide-container p-16 relative">
+        <div class="section-number">1</div>
+
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold">
+                <span class="title-accent">Operaciones Matemáticas en Curvas Elípticas</span>
+            </h1>
+            <p class="text-blue-200 mt-2 text-xl">Base algebraica de la criptografía ECC</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-6">
+            <div>
+                <h2 class="text-2xl font-semibold mb-3 text-blue-300">
+                    <i class="fas fa-plus-circle mr-2"></i>Suma de Puntos
+                </h2>
+
+                <div class="chart-container">
+                    <canvas id="pointAdditionChart"></canvas>
+                </div>
+
+                <div class="feature-card">
+                    <h3 class="text-lg font-medium text-blue-200 mb-2">Reglas Algebraicas</h3>
+
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <p><span class="math-highlight">Dados P y Q</span> en la curva, trazamos una línea que los conecta</p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <p>Esta línea intersecta la curva en un tercer punto <span class="math-highlight">R'</span></p>
+                    </div>
+
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <p>El punto <span class="math-highlight">P + Q = R</span> es el reflejo de R' sobre el eje X</p>
+                    </div>
+
+                    <p class="text-xs text-blue-200 mt-2">La suma es conmutativa (P + Q = Q + P) y asociativa ((P + Q) + R = P + (Q + R))</p>
+                </div>
+            </div>
+
+            <div>
+                <div class="mb-5">
+                    <h2 class="text-2xl font-semibold mb-3 text-blue-300">
+                        <i class="fas fa-asterisk mr-2"></i>Multiplicación Escalar
+                    </h2>
+
+                    <div class="feature-card mb-4">
+                        <h3 class="text-lg font-medium text-blue-200 mb-2">Definición</h3>
+                        <p>La multiplicación de un punto P por un escalar k se define como:</p>
+                        <div class="formula">kP = P + P + ... + P (k veces)</div>
+                        <div class="grid grid-cols-2 gap-2 mt-3">
+                            <div class="bg-blue-900 bg-opacity-30 rounded p-2">
+                                <h4 class="text-sm font-medium text-blue-200">Ejemplo:</h4>
+                                <p class="text-xs">2P = P + P</p>
+                                <p class="text-xs">3P = 2P + P</p>
+                                <p class="text-xs">4P = 2P + 2P</p>
+                            </div>
+                            <div class="bg-blue-900 bg-opacity-30 rounded p-2">
+                                <h4 class="text-sm font-medium text-blue-200">Algoritmo eficiente:</h4>
+                                <p class="text-xs">Método del doble y suma</p>
+                                <p class="text-xs">Complejidad: O(log k)</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h2 class="text-2xl font-semibold mb-3 text-blue-300">
+                        <i class="fas fa-key mr-2"></i>Logaritmo Discreto Elíptico
+                    </h2>
+
+                    <div class="feature-card">
+                        <h3 class="text-lg font-medium text-blue-200 mb-2">Problema Fundamental</h3>
+
+                        <div class="p-3 bg-blue-900 bg-opacity-30 rounded mb-3">
+                            <p class="text-sm">Dados dos puntos <span class="math-highlight">P</span> y <span class="math-highlight">Q</span> en la curva, encontrar el entero <span class="math-highlight">k</span> tal que:</p>
+                            <div class="formula">Q = kP</div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-2">
+                            <div class="step-card">
+                                <h4 class="text-sm font-medium text-blue-200">Fácil en un sentido</h4>
+                                <pclass="text-xs">Calcular Q = kP es eficiente incluso para k grandes</p>
+                            </div>
+
+                            <div class="step-card">
+                                <h4 class="text-sm font-medium text-blue-200">Difícil en sentido inverso</h4>
+                                <p class="text-xs">Encontrar k dado P y Q es computacionalmente difícil</p>
+                            </div>
+                        </div>
+
+                        <p class="text-sm mt-3">
+                            <i class="fas fa-shield-alt text-blue-300 mr-1"></i>
+                            <span class="math-highlight">Base de la seguridad ECC:</span> No existe un algoritmo eficiente para resolver este problema.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="presenter-badge">
+            <i class="fas fa-user-circle mr-2"></i>
+            <span>Presentado por: <strong>Robert Dueñas</strong></span>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Generate elliptic curve points for visualization
+            function generateEllipticCurveWithPointAddition() {
+                const a = -3;
+                const b = 3;
+
+                const points = [];
+                const xValues = [];
+                const yPosValues = [];
+                const yNegValues = [];
+
+                for (let x = -3; x <= 3; x += 0.05) {
+                    const ySquared = x*x*x + a*x + b;
+                    if (ySquared >= 0) {
+                        const y = Math.sqrt(ySquared);
+                        xValues.push(x);
+                        yPosValues.push(y);
+                        yNegValues.push(-y);
+                    }
+                }
+
+                points.push({
+                    label: 'Curva Elíptica',
+                    data: xValues.map((x, i) => ({ x, y: yPosValues[i] })),
+                    borderColor: '#4facfe',
+                    backgroundColor: 'transparent',
+                    pointRadius: 0,
+                    borderWidth: 2
+                });
+
+                points.push({
+                    label: 'Curva Elíptica',
+                    data: xValues.map((x, i) => ({ x, y: yNegValues[i] })),
+                    borderColor: '#4facfe',
+                    backgroundColor: 'transparent',
+                    pointRadius: 0,
+                    borderWidth: 2,
+                    showLine: true
+                });
+
+                // Punto P
+                const pointP = { x: -2, y: 1.73 };
+
+                // Punto Q
+                const pointQ = { x: 0, y: 1.73 };
+
+                // Punto R' (intersección)
+                const pointRPrime = { x: 1, y: 1.73 };
+
+                // Punto R (resultado de P+Q)
+                const pointR = { x: 1, y: -1.73 };
+
+                // Add special points for demonstration
+                points.push({
+                    label: 'Punto P',
+                    data: [pointP],
+                    borderColor: '#ef4444',
+                    backgroundColor: '#ef4444',
+                    pointRadius: 6,
+                    showLine: false
+                });
+
+                points.push({
+                    label: 'Punto Q',
+                    data: [pointQ],
+                    borderColor: '#22c55e',
+                    backgroundColor: '#22c55e',
+                    pointRadius: 6,
+                    showLine: false
+                });
+
+                points.push({
+                    label: "Punto R'",
+                    data: [pointRPrime],
+                    borderColor: '#f59e0b',
+                    backgroundColor: '#f59e0b',
+                    pointRadius: 6,
+                    showLine: false
+                });
+
+                points.push({
+                    label: 'Punto R = P+Q',
+                    data: [pointR],
+                    borderColor: '#8b5cf6',
+                    backgroundColor: '#8b5cf6',
+                    pointRadius: 6,
+                    showLine: false
+                });
+
+                // Línea entre P y Q
+                points.push({
+                    label: 'Línea P a Q',
+                    data: [pointP, pointQ, pointRPrime],
+                    borderColor: 'rgba(255, 255, 255, 0.5)',
+                    backgroundColor: 'transparent',
+                    pointRadius: 0,
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    showLine: true
+                });
+
+                // Línea vertical R' a R
+                points.push({
+                    label: 'Línea R\' a R',
+                    data: [pointRPrime, pointR],
+                    borderColor: 'rgba(255, 255, 255, 0.5)',
+                    backgroundColor: 'transparent',
+                    pointRadius: 0,
+                    borderWidth: 1,
+                    borderDash: [5, 5],
+                    showLine: true
+                });
+
+                return points;
+            }
+
+            // Create chart for point addition
+            const ctx = document.getElementById('pointAdditionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: generateEllipticCurveWithPointAddition()
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: 'rgba(255, 255, 255, 0.7)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.dataset.label;
+                                    if (label === 'Curva Elíptica' ||
+                                        label === 'Línea P a Q' ||
+                                        label === "Línea R' a R") {
+                                        return '';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Render KaTeX formulas
+            const formulaElements = document.querySelectorAll('.formula');
+            formulaElements.forEach(element => {
+                katex.render(element.textContent, element, {
+                    throwOnError: false
+                });
+            });
+        });
+    </script>
+</body>
+</html>
