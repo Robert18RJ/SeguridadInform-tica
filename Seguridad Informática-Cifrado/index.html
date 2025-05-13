@@ -1,96 +1,165 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Presentación</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Poppins', sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      overflow-y: auto; /* Scroll vertical */
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Presentación</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f4f4; /* Lighter background for the wrapper */
+            color: #333;
+            overflow-y: auto; /* Scroll vertical */
+        }
 
-    .contenedor {
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
-    }
+        .contenedor {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
 
-    .contenido {
-      flex-grow: 1;
-      padding: 1em;
-    }
+        .contenido {
+            flex-grow: 1;
+            padding: 1em; /* Add some padding around the iframe */
+            display: flex; /* Use flex to center iframe */
+            justify-content: center;
+            align-items: center;
+        }
 
-    iframe {
-      width: 100%;
-      height: 87vh;
-      border: none;
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
+        iframe {
+            width: 100%;
+            /* Adjust height to prevent cutting off content/nav on smaller viewports */
+            height: calc(100vh - 80px); /* Example: 100vh minus assumed nav/padding height */
+            max-height: 720px; /* Optional: Max height based on original slide size */
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow */
+        }
 
-    .navegacion {
-      text-align: center;
-      padding: 1em;
-    }
+        .navegacion {
+            text-align: center;
+            padding: 1em;
+            background-color: #1a202c; /* Dark background for nav area */
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-    .navegacion button {
-      background-color: #444;
-      color: white;
-      border: none;
-      padding: 0.8em 1.5em;
-      margin: 0.3em;
-      font-size: 1em;
-      cursor: pointer;
-      transition: background-color 0.3s;
-      border-radius: 8px;
-    }
+        .navegacion button {
+            /* Modern Button Styles */
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6); /* Gradient background */
+            color: white;
+            border: none;
+            padding: 0.6em 1.2em; /* Adjusted padding */
+            margin: 0.5em; /* Adjusted margin */
+            font-size: 1em;
+            cursor: pointer;
+            border-radius: 25px; /* Pill shape */
+            transition: all 0.3s ease; /* Smooth transition for multiple properties */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Add subtle shadow */
+            display: inline-flex; /* Allow icon and text side-by-side */
+            align-items: center; /* Vertically align icon and text */
+            justify-content: center; /* Center content */
+            font-weight: 600; /* Slightly bolder text */
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.2); /* Add text shadow for contrast */
+        }
 
-    .navegacion button:hover {
-      background-color: #666;
-    }
-  </style>
+        .navegacion button:hover {
+            background: linear-gradient(90deg, #8b5cf6, #3b82f6); /* Reverse gradient on hover */
+            transform: translateY(-2px); /* Lift button slightly */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Stronger shadow on hover */
+        }
+
+         .navegacion button:active {
+             transform: translateY(0); /* Press down effect */
+             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+             background: linear-gradient(90deg, #6d28d9, #2563eb); /* Darker gradient on active */
+         }
+
+         .navegacion button i {
+             /* Icon spacing */
+             margin-right: 0.5em;
+         }
+
+         /* Specific icon spacing */
+         .navegacion button.siguiente i {
+             margin-right: 0;
+             margin-left: 0.5em;
+         }
+
+         /* Optional: Disable button styles when disabled */
+         .navegacion button:disabled {
+             opacity: 0.5;
+             cursor: not-allowed;
+             transform: none;
+             box-shadow: none;
+             background: #444; /* Fallback to original disabled color */
+             text-shadow: none;
+         }
+    </style>
 </head>
 <body>
-  <div class="contenedor">
-    <div class="contenido">
-      <iframe id="iframeContenido" src="1.html"></iframe>
+    <div class="contenedor">
+        <div class="contenido">
+            <iframe id="iframeContenido" src="1.html"></iframe>
+        </div>
+
+        <div class="navegacion">
+            <button id="anteriorBtn" onclick="anterior()">
+                <i class="fas fa-chevron-left"></i> Anterior
+            </button>
+            <button id="siguienteBtn" class="siguiente" onclick="siguiente()">
+                Siguiente <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
     </div>
 
-    <div class="navegacion">
-      <button onclick="anterior()">Anterior</button>
-      <button onclick="siguiente()">Siguiente</button>
-    </div>
-  </div>
+    <script>
+        const paginas = [
+            "1.html", "2.html", "3.html", "4.html", "5.html",
+            "6.html", "7.html", "8.html", "9.html", "10.html",
+            "11.html", "12.html", "13.html", "14.html"
+        ];
+        let indiceActual = 0;
+        const iframe = document.getElementById("iframeContenido");
+        const anteriorBtn = document.getElementById("anteriorBtn");
+        const siguienteBtn = document.getElementById("siguienteBtn");
 
-  <script>
-    const paginas = [
-      "1.html", "2.html", "3.html", "4.html", "5.html",
-      "6.html", "7.html", "8.html", "9.html", "10.html",
-      "11.html", "12.html", "13.html", "14.html"
-    ];
-    let indiceActual = 0;
+        function actualizarEstadoBotones() {
+            anteriorBtn.disabled = indiceActual === 0;
+            siguienteBtn.disabled = indiceActual === paginas.length - 1;
+        }
 
-    function cargarPagina() {
-      document.getElementById("iframeContenido").src = paginas[indiceActual];
-    }
+        function cargarPagina() {
+            iframe.src = paginas[indiceActual];
+            actualizarEstadoBotones();
+        }
 
-    function anterior() {
-      if (indiceActual > 0) {
-        indiceActual--;
-        cargarPagina();
-      }
-    }
+        function anterior() {
+            if (indiceActual > 0) {
+                indiceActual--;
+                cargarPagina();
+            }
+        }
 
-    function siguiente() {
-      if (indiceActual < paginas.length - 1) {
-        indiceActual++;
-        cargarPagina();
-      }
-    }
-  </script>
+        function siguiente() {
+            if (indiceActual < paginas.length - 1) {
+                indiceActual++;
+                cargarPagina();
+            }
+        }
+
+        // Initial load and button state update
+        document.addEventListener('DOMContentLoaded', function() {
+            cargarPagina();
+        });
+
+        // Optional: Update buttons when iframe finishes loading (handles manual URL changes if any)
+        iframe.onload = function() {
+             actualizarEstadoBotones();
+        };
+
+    </script>
 </body>
 </html>
